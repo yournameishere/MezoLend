@@ -2,9 +2,11 @@ import { decodeEventLog, encodeEventTopics, pad, type Abi, type Address, type He
 import {
   EXPLORER_API,
   START_BLOCK,
+  ZAP,
   collateralManagerAbi,
   lendingPoolAbi,
   liquidationManagerAbi,
+  mezoLendZapAbi,
 } from "@/config/contracts";
 
 type RawLog = {
@@ -44,11 +46,12 @@ export type Activity = {
     | "collateral-out"
     | "liquidated"
     | "liquidator"
-    | "shares-out";
+    | "shares-out"
+    | "swap";
   marketId: number;
   marketName: string;
   amount: bigint;
-  asset: "MUSD" | "BTC";
+  asset: "MUSD" | "BTC" | "MEZO";
   extra?: string;
   hash: Hex;
   block: number;
@@ -172,6 +175,57 @@ export async function loadActivity(user: Address, markets: MarketRef[]): Promise
     }
   }
 
+  // Supplies made through the Mezo Pools zap: the zap is the ERC-4626 sender, the user is the owner (topic2).
+  for (const m of markets) {
+    jobs.push(
+      fetchLogs({ address: m.pool, topic2: topic }).then((logs) =>
+        logs.flatMap((l): Activity[] => {
+          const ev = decode(lendingPoolAbi as Abi, l);
+          if (!ev || ev.eventName !== "Deposit") return [];
+          return [
+            {
+              marketId: m.id,
+              marketName: m.name,
+              id: `${l.transactionHash}-${l.logIndex}`,
+              kind: "supply",
+              amount: (ev.args as Record<string, bigint>).assets,
+              asset: "MUSD",
+              hash: l.transactionHash,
+              block: Number(l.blockNumber),
+              ts: Number(l.timeStamp),
+            },
+          ];
+        }),
+      ),
+    );
+  }
+  // Swaps into MUSD through Mezo Pools (zap events are indexed by the user)
+  jobs.push(
+    fetchLogs({ address: ZAP, topic1: topic }).then((logs) =>
+      logs.flatMap((l): Activity[] => {
+        const ev = decode(mezoLendZapAbi as Abi, l);
+        if (!ev) return [];
+        const a = ev.args as Record<string, unknown>;
+        const tokenIn = String(a.tokenIn).toLowerCase().endsWith("0001") ? "MEZO" : "BTC";
+        const out = (a.musdOut ?? a.musdIn) as bigint;
+        return [
+          {
+            marketId: -1,
+            marketName: "Mezo Pools",
+            id: `${l.transactionHash}-${l.logIndex}-swap`,
+            kind: "swap",
+            amount: a.amountIn as bigint,
+            asset: tokenIn,
+            extra: `musd:${out.toString()}`,
+            hash: l.transactionHash,
+            block: Number(l.blockNumber),
+            ts: Number(l.timeStamp),
+          },
+        ];
+      }),
+    ),
+  );
+
   const all = (await Promise.all(jobs)).flat();
   const seen = new Set<string>();
   return all
@@ -263,4 +317,75 @@ export async function loadLiquidations(markets: MarketRef[]): Promise<Liquidatio
     ),
   );
   return res.flat().sort((a, b) => b.block - a.block);
+}
+
+// ───────────────────────── Protocol-wide recent activity (landing page) ─────────────────────────
+
+export type PublicActivity = {
+  id: string;
+  kind: "supply" | "withdraw" | "borrow" | "repay" | "liquidation";
+  marketName: string;
+  account: Address;
+  amount: bigint;
+  hash: Hex;
+  block: number;
+  ts: number;
+};
+
+/** The latest lending actions by anyone, across all markets, from contract events. */
+export async function loadRecentActivity(markets: MarketRef[], limit = 8): Promise<PublicActivity[]> {
+  const jobs = markets.flatMap((m) => [
+    fetchLogs({ address: m.pool }).then((logs) =>
+      logs.flatMap((l): PublicActivity[] => {
+        const ev = decode(lendingPoolAbi as Abi, l);
+        if (!ev) return [];
+        const a = ev.args as Record<string, unknown>;
+        const base = {
+          id: `${l.transactionHash}-${l.logIndex}`,
+          marketName: m.name,
+          hash: l.transactionHash,
+          block: Number(l.blockNumber),
+          ts: Number(l.timeStamp),
+        };
+        switch (ev.eventName) {
+          case "Deposit":
+            return [{ ...base, kind: "supply", account: a.owner as Address, amount: a.assets as bigint }];
+          case "Withdraw":
+            return [{ ...base, kind: "withdraw", account: a.owner as Address, amount: a.assets as bigint }];
+          case "Borrow":
+            return [{ ...base, kind: "borrow", account: a.borrower as Address, amount: a.amount as bigint }];
+          case "Repay":
+            return [{ ...base, kind: "repay", account: a.borrower as Address, amount: a.amount as bigint }];
+          default:
+            return [];
+        }
+      }),
+    ),
+    fetchLogs({ address: m.liquidationManager, topic0: liquidationTopic }).then((logs) =>
+      logs.flatMap((l): PublicActivity[] => {
+        const ev = decode(liquidationManagerAbi as Abi, l);
+        if (!ev || ev.eventName !== "Liquidation") return [];
+        const a = ev.args as Record<string, unknown>;
+        return [
+          {
+            id: `${l.transactionHash}-${l.logIndex}`,
+            kind: "liquidation",
+            marketName: m.name,
+            account: a.borrower as Address,
+            amount: a.repaid as bigint,
+            hash: l.transactionHash,
+            block: Number(l.blockNumber),
+            ts: Number(l.timeStamp),
+          },
+        ];
+      }),
+    ),
+  ]);
+  const all = (await Promise.all(jobs)).flat();
+  // A liquidation also emits Repay; show it once, as the liquidation.
+  const liqTx = new Set(all.filter((x) => x.kind === "liquidation").map((x) => x.hash));
+  return all
+    .filter((x) => !(x.kind === "repay" && liqTx.has(x.hash)))
+    .sort((a, b) => b.block - a.block || b.id.localeCompare(a.id))
+    .slice(0, limit);
 }

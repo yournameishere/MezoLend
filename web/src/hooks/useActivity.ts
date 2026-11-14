@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { Address } from "viem";
-import { loadActivity, loadLiquidations, loadSnapshots } from "@/lib/history";
+import { loadActivity, loadLiquidations, loadRecentActivity, loadSnapshots } from "@/lib/history";
 import { useMarkets } from "./useProtocol";
 
 function refs(markets: ReturnType<typeof useMarkets>["markets"]) {
@@ -41,5 +41,16 @@ export function useLiquidationFeed() {
     queryFn: () => loadLiquidations(refs(markets)),
     enabled: !!markets?.length,
     refetchInterval: 20_000,
+  });
+}
+
+export function useRecentActivity(limit = 8) {
+  const { markets } = useMarkets();
+  return useQuery({
+    queryKey: ["recent-activity", markets?.length, limit],
+    queryFn: () => loadRecentActivity(refs(markets), limit),
+    enabled: !!markets?.length,
+    refetchInterval: 30_000,
+    staleTime: 20_000,
   });
 }

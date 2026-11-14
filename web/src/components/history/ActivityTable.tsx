@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDownLeft, ArrowUpRight, Gavel, Lock, Unlock } from "lucide-react";
+import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, Gavel, Lock, Unlock } from "lucide-react";
 import type { Activity } from "@/lib/history";
 import { ExplorerLink, Segmented, Skeleton } from "@/components/ui/Primitives";
 import { EmptyState, Table, Td, Th } from "@/components/ui/Card";
@@ -11,12 +11,13 @@ const kindCopy: Record<Activity["kind"], { label: string; group: "lend" | "borro
   supply: { label: "Supplied", group: "lend", icon: ArrowUpRight, tone: "bg-tang-soft text-tang-deep" },
   withdraw: { label: "Withdrew", group: "lend", icon: ArrowDownLeft, tone: "bg-tang-soft text-tang-deep" },
   "shares-out": { label: "Sent pool shares", group: "lend", icon: ArrowUpRight, tone: "bg-wash text-mute" },
-  borrow: { label: "Borrowed", group: "borrow", icon: ArrowDownLeft, tone: "bg-[#efeae4] text-ink" },
-  repay: { label: "Repaid", group: "borrow", icon: ArrowUpRight, tone: "bg-[#efeae4] text-ink" },
+  borrow: { label: "Borrowed", group: "borrow", icon: ArrowDownLeft, tone: "bg-[#f3ebe3] text-ink" },
+  repay: { label: "Repaid", group: "borrow", icon: ArrowUpRight, tone: "bg-[#f3ebe3] text-ink" },
   "collateral-in": { label: "Deposited collateral", group: "collateral", icon: Lock, tone: "bg-wash text-mute" },
   "collateral-out": { label: "Withdrew collateral", group: "collateral", icon: Unlock, tone: "bg-wash text-mute" },
   liquidated: { label: "Loan liquidated", group: "liquidation", icon: Gavel, tone: "bg-danger-soft text-danger" },
   liquidator: { label: "Liquidated a loan", group: "liquidation", icon: Gavel, tone: "bg-safe-soft text-safe" },
+  swap: { label: "Swapped for MUSD", group: "lend", icon: ArrowLeftRight, tone: "bg-tang-soft text-tang-deep" },
 };
 
 type Filter = "all" | "lend" | "borrow" | "collateral" | "liquidation";
@@ -95,6 +96,9 @@ export function ActivityTable({ items, loading, error }: { items?: Activity[]; l
                         <span className="block text-[12px] text-mute">
                           {a.kind === "liquidated" ? "Lost" : "Received"} {fmtAmount(seized)} BTC
                         </span>
+                      )}
+                      {a.extra?.startsWith("musd:") && (
+                        <span className="block text-[12px] text-mute">Got {fmtAmount(BigInt(a.extra.slice(5)), 18, { max: 2 })} MUSD on Mezo Pools</span>
                       )}
                       {fee !== undefined && <span className="block text-[12px] text-mute">incl. {fmtAmount(fee, 18, { max: 4 })} MUSD fee</span>}
                     </span>
