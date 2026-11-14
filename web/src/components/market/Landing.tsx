@@ -19,7 +19,7 @@ export function Landing() {
   const { markets, isLoading, error } = useMarkets();
   return (
     <div>
-      <section className={`${wrap} grid gap-12 pt-12 pb-16 lg:grid-cols-[1fr_minmax(0,500px)] lg:items-start lg:gap-16 lg:pt-20 lg:pb-24`}>
+      <section className={`${wrap} grid grid-cols-[minmax(0,1fr)] gap-12 pt-12 pb-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,500px)] lg:items-start lg:gap-16 lg:pt-20 lg:pb-24`}>
         <div className="lg:pt-6">
           <Link href="/docs#contracts" className="inline-flex items-center gap-2 text-[13.5px] font-medium text-mute hover:text-ink">
             <span className="h-2 w-2 rounded-full bg-safe" aria-hidden />
@@ -447,7 +447,7 @@ function RecentActivity() {
         {q.data?.length === 0 && <li className="py-5 text-[14.5px] text-mute">No activity yet. Be the first to lend or borrow.</li>}
         {q.data?.map((a) => (
           <li key={a.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-4 text-[15px]">
-            <span className="min-w-0 flex-1">
+            <span className="min-w-0 basis-full sm:basis-auto sm:flex-1">
               <span className="font-semibold">{shortAddr(a.account)}</span> {verb[a.kind]}{" "}
               <span className="font-semibold">{fmtAmount(a.amount, 18, { max: 2 })} MUSD</span> in {a.marketName}
             </span>

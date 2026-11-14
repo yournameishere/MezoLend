@@ -134,12 +134,12 @@ function Mark({ x, label, tone, below }: { x: number; label: string; tone: strin
 /** Thin utilization bar: lent out (orange fill) vs idle. */
 export function UtilBar({ u, className = "" }: { u: number; className?: string }) {
   return (
-    <div className={`h-1.5 w-full overflow-hidden rounded-full bg-line ${className}`} role="meter" aria-valuenow={Math.round(u * 100)} aria-valuemin={0} aria-valuemax={100} aria-label="Utilization">
+    <div className={`h-1.5 w-full overflow-hidden rounded-full bg-tang-soft ${className}`} role="meter" aria-valuenow={Math.round(u * 100)} aria-valuemin={0} aria-valuemax={100} aria-label="Utilization">
       <div
         className="h-full rounded-full transition-[width] duration-700"
         style={{
-          width: `${Math.min(100, u * 100)}%`,
-          background: u > 0.9 ? "#c0362c" : u > 0.8 ? "#a15c00" : "#f7931a",
+          width: `${Math.min(100, Math.round(u * 1000) / 10)}%`,
+          backgroundColor: u > 0.9 ? "#c0362c" : u > 0.8 ? "#a15c00" : "#f7931a",
         }}
       />
     </div>

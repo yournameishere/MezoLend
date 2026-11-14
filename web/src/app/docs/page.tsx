@@ -3,32 +3,33 @@ import Link from "next/link";
 import { glossary } from "@/lib/glossary";
 import { contractLinks, FAUCET, MEZO_BORROW } from "@/config/contracts";
 import { ExplorerLink } from "@/components/ui/Primitives";
-import { Card } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
   title: "Documentation",
-  description: "How MezoLend works: supplying, borrowing, health factor, liquidations, fees, risks and contract addresses.",
+  description: "How MezoLend works: lending, borrowing, Mezo Pools swaps, health factor, liquidations, fees, risks, the security review and contract addresses.",
 };
 
 const toc = [
   { id: "overview", label: "Overview" },
-  { id: "lending", label: "Supplying MUSD" },
+  { id: "lending", label: "Lending MUSD" },
   { id: "borrowing", label: "Borrowing MUSD" },
   { id: "health", label: "Health factor" },
   { id: "liquidations", label: "Liquidations" },
+  { id: "swap", label: "Getting MUSD" },
   { id: "rates", label: "Interest rates" },
   { id: "mezo-borrow", label: "MezoLend vs Mezo Borrow" },
   { id: "fees", label: "Fees" },
   { id: "risks", label: "Risks" },
   { id: "testnet", label: "Testnet assets" },
   { id: "glossary", label: "Glossary" },
-  { id: "contracts", label: "Contracts and security" },
+  { id: "security", label: "Security review" },
+  { id: "contracts", label: "Contracts" },
 ];
 
 const lenderSteps = [
   ["Connect a wallet", "Any EVM wallet on Mezo Testnet. MezoLend adds the network for you."],
   ["Pick a market", "Core is conservative. Edge pays lenders more because its borrowers can borrow closer to their limit."],
-  ["Approve and supply MUSD", "Two transactions the first time: a spending approval, then the deposit. You receive pool shares (mlMUSD)."],
+  ["Sign and lend", "One signature and one transaction. MUSD's permit replaces the separate approval. You receive pool shares (mlMUSD)."],
   ["Earn while it's lent out", "Borrowers pay interest every second. Your shares become worth more MUSD, and the dashboard shows what you've earned."],
   ["Withdraw when you like", "Instantly, up to the pool's idle MUSD. If most of it is lent out, rates rise to bring repayments in."],
 ];
@@ -37,13 +38,13 @@ const borrowerSteps = [
   ["Deposit BTC", "Your BTC goes into the market's collateral contract, not to a person and not to the lenders."],
   ["Borrow MUSD", "Up to the market's max LTV. A one-time origination fee is added to your debt."],
   ["Watch your health factor", "It falls if BTC drops or interest builds up. MezoLend alerts you before it gets close to 1.0."],
-  ["Repay any time", "Partly or in full, with no penalty. Anyone can also repay on your behalf."],
+  ["Repay any time", "Partly or in full, with no penalty, in one permit transaction. You can also repay with BTC through Mezo Pools, and anyone can repay on your behalf."],
   ["Take your BTC back", "Once repaid, or partly earlier as long as you stay within your limit."],
 ];
 
 export default function DocsPage() {
   return (
-    <div className="mx-auto max-w-[1240px] px-4 sm:px-6">
+    <div className="mx-auto max-w-[1200px] px-4 pb-8 sm:px-6">
       <div className="grid gap-10 pt-10 lg:grid-cols-[220px_1fr]">
         <aside className="hidden lg:block">
           <nav aria-label="On this page" className="sticky top-24">
@@ -62,7 +63,7 @@ export default function DocsPage() {
 
         <article className="min-w-0 max-w-3xl text-[15px] leading-relaxed text-mute">
           <header id="overview" className="scroll-mt-24">
-            <h1 className="t-title text-[34px] text-ink">How MezoLend works</h1>
+            <h1 className="t-display text-[40px] text-ink sm:text-[46px]">How MezoLend works</h1>
             <p className="mt-4 text-[16.5px]">
               MezoLend is a lending market for MUSD, Mezo&apos;s bitcoin-backed dollar. People who hold MUSD supply it to a pool and earn
               interest. People who hold BTC post it as collateral and borrow from that pool. Smart contracts hold the funds, set the rates and
@@ -70,11 +71,11 @@ export default function DocsPage() {
             </p>
           </header>
 
-          <Section id="lending" title="Supplying MUSD">
+          <Section id="lending" title="Lending MUSD">
             <Steps steps={lenderSteps} />
             <p className="mt-4">
               <Link href="/lend" className="font-semibold text-tang-deep hover:underline">
-                Go to Supply
+                Go to Lend
               </Link>
             </p>
           </Section>
@@ -156,6 +157,27 @@ export default function DocsPage() {
             </div>
           </Section>
 
+          <Section id="swap" title="Getting MUSD with Mezo Pools">
+            <p>
+              The Get MUSD page trades BTC or MEZO for MUSD on Mezo Pools through MezoLend&apos;s swap contract. In the same transaction it
+              can also lend the MUSD to a market in your name, or use it to repay a loan and send any change back to you.
+            </p>
+            <ul className="mt-3 list-disc space-y-1.5 pl-5">
+              <li>BTC is sent as the transaction value, so there is no approval step. MEZO is pulled with a permit signature.</li>
+              <li>You set a slippage limit. If the pool would pay less than your minimum, the whole transaction is cancelled.</li>
+              <li>The swap contract has no owner, holds nothing between transactions and only works with markets listed in the registry.</li>
+              <li>
+                Testnet pools are not arbitraged, so their BTC price can differ from Mezo&apos;s oracle. MezoLend always values collateral at
+                the oracle price.
+              </li>
+            </ul>
+            <p className="mt-4">
+              <Link href="/swap" className="font-semibold text-tang-deep hover:underline">
+                Go to Get MUSD
+              </Link>
+            </p>
+          </Section>
+
           <Section id="mezo-borrow" title="MezoLend vs Mezo Borrow">
             <p>
               Mezo&apos;s own borrowing (Troves) mints new MUSD against BTC, with a fixed rate and a 2,000 MUSD minimum. MezoLend doesn&apos;t mint
@@ -192,8 +214,9 @@ export default function DocsPage() {
                 borrowing, withdrawals and liquidations pause until prices return.
               </li>
               <li>
-                <span className="font-semibold text-ink">Smart-contract risk.</span> The contracts are tested with unit, fuzz and invariant tests but not
-                audited. This deployment is on testnet with valueless assets.
+                <span className="font-semibold text-ink">Smart-contract risk.</span> The contracts are tested with unit, fuzz and invariant tests and
+                were reviewed internally (see the security review below), but they have not had an external audit. This deployment is on testnet
+                with valueless assets.
               </li>
             </ul>
           </Section>
@@ -208,7 +231,11 @@ export default function DocsPage() {
                 . It pays for gas and works as collateral.
               </li>
               <li>
-                Get MUSD by borrowing it here against your BTC, or by minting it on{" "}
+                Get MUSD by{" "}
+                <Link href="/swap" className="font-medium text-tang-deep hover:underline">
+                  swapping BTC on Mezo Pools
+                </Link>
+                , by borrowing it here against your BTC, or by minting it on{" "}
                 <a href={MEZO_BORROW} target="_blank" rel="noreferrer" className="font-medium text-tang-deep hover:underline">
                   Mezo Borrow
                 </a>
@@ -229,13 +256,47 @@ export default function DocsPage() {
             </dl>
           </Section>
 
-          <Section id="contracts" title="Contracts and security">
+          <Section id="security" title="Security review">
+            <p>
+              Before this release every function, state change and money path was reviewed. Each finding got a proof-of-concept test that
+              failed against the old code, a fix, and the test kept as a regression test. The full write-up, including what a contract
+              cannot prevent, is in{" "}
+              <a
+                href="https://github.com/yournameishere/MezoLend/blob/main/docs/SECURITY.md"
+                target="_blank"
+                rel="noreferrer"
+                className="font-medium text-tang-deep hover:underline"
+              >
+                docs/SECURITY.md
+              </a>
+              .
+            </p>
+            <ul className="mt-4 divide-y divide-line border-y border-line">
+              {[
+                ["Medium", "A treasury that couldn't receive BTC could block every liquidation.", "The protocol's cut now stays in the collateral contract until claimed."],
+                ["Medium", "Pausing the market also locked BTC of people with no debt.", "A pause now only blocks withdrawals that back open loans."],
+                ["Low", "Withdrawing the maximum collateral could fail by 1 wei of rounding.", "The maximum is now computed as the exact inverse of the safety check."],
+                ["Low", "A price stamped in the future counted as fresh until that date.", "Prices more than 5 minutes ahead of block time are rejected."],
+              ].map(([sev, issue, fix]) => (
+                <li key={issue} className="grid gap-1 py-3 sm:grid-cols-[80px_1fr]">
+                  <span className={`text-[13px] font-bold ${sev === "Medium" ? "text-warn" : "text-mute"}`}>{sev}</span>
+                  <span>
+                    <span className="block font-medium text-ink">{issue}</span>
+                    <span className="block text-[14px]">Fixed: {fix}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </Section>
+
+          <Section id="contracts" title="Contracts">
             <p>
               Each market is four contracts: a lending pool (an ERC-4626 vault plus the debt ledger), a collateral manager (custody and risk
               settings), a borrow manager (limits and health checks) and a liquidation manager, plus its own rate model. A registry lists the
-              markets and a read-only lens powers this site. All are verified on the Mezo Testnet explorer.
+              markets, a read-only lens powers this site, and a stateless swap contract connects to Mezo Pools. All are verified on the Mezo
+              Testnet explorer.
             </p>
-            <Card as="div" className="mt-5">
+            <div className="mt-5 rounded-[var(--radius-panel)] border border-line-2">
               <ul className="divide-y divide-line">
                 {contractLinks.map((c) => (
                   <li key={c.label} className="flex items-center justify-between gap-4 px-5 py-2.5 text-[14px]">
@@ -244,14 +305,15 @@ export default function DocsPage() {
                   </li>
                 ))}
               </ul>
-            </Card>
+            </div>
             <h3 className="mt-8 font-semibold text-ink">Safety measures in the code</h3>
             <ul className="mt-2 list-disc space-y-1.5 pl-5">
               <li>Reentrancy guards on every state-changing entry point, with checks-effects-interactions ordering.</li>
               <li>Oracle validation: staleness windows, min/max price bounds, a Pyth confidence ceiling, and a fallback source.</li>
               <li>New debt and collateral withdrawals checked against the LTV limit; liquidations only below health factor 1.0, capped by a close factor.</li>
               <li>A bad-debt write-off path so insolvent accounts can&apos;t linger; reserves absorb losses first.</li>
-              <li>Role-based admin with an emergency pause that never blocks repaying or adding collateral.</li>
+              <li>Role-based admin with an emergency pause that never blocks repaying, adding collateral or withdrawing BTC that backs no debt.</li>
+              <li>EIP-2612 permits wrapped so a front-run signature can&apos;t block your transaction.</li>
               <li>Internal cash accounting so token donations can&apos;t manipulate share prices; supply and borrow caps.</li>
             </ul>
           </Section>

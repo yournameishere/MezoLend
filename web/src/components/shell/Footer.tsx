@@ -4,7 +4,7 @@ import { EXPLORER, FAUCET, REGISTRY } from "@/config/contracts";
 
 export function Footer() {
   return (
-    <footer className="border-t-[3px] border-ink bg-paper">
+    <footer className="mt-16 border-t-[3px] border-ink bg-paper">
       <div className="mx-auto grid max-w-[1200px] gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
         <div>
           <Wordmark />

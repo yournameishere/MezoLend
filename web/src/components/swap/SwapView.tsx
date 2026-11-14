@@ -140,7 +140,7 @@ export function SwapView() {
         intro="Swap BTC or MEZO for MUSD on Mezo Pools. Keep it, lend it straight away, or put it toward a loan, all in one transaction."
       />
 
-      <div className="grid gap-10 pb-20 lg:grid-cols-[minmax(0,520px)_1fr] lg:gap-14">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-10 pb-20 lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)] lg:gap-14">
         <Panel>
           <div className="space-y-6 p-5 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">

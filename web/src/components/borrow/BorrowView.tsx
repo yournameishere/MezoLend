@@ -320,7 +320,7 @@ function BorrowForm({
 
   const debtAfter = sim.debt;
   let error: string | undefined;
-  if (coll > maxColl) error = "That's more BTC than your wallet can spare after gas.";
+  if (connected && coll > maxColl) error = "That's more BTC than your wallet can spare after gas.";
   else if (amt > market.totalCash) error = "The pool doesn't have that much idle MUSD right now.";
   else if (amt > maxAmt) error = "That's above your borrowing limit. Add more BTC or borrow less.";
   else if (amt > 0n && debtAfter < market.minBorrow) error = `Loans start at ${fmtAmount(market.minBorrow)} MUSD.`;
