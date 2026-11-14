@@ -135,7 +135,7 @@ function LoanCalculator({ markets, loading, failed }: { markets?: readonly Marke
               autoComplete="off"
               value={btc}
               onChange={(e) => setBtc(e.target.value.replace(/[^0-9.]/g, ""))}
-              className="h-12 min-w-0 flex-1 bg-transparent text-[22px] font-bold tracking-[-0.02em] outline-none"
+              className="h-12 min-w-0 flex-1 bg-transparent text-[22px] font-bold tracking-[-0.02em] outline-none focus-visible:outline-none"
             />
             <span className="text-[14px] font-semibold text-mute">BTC</span>
           </div>
