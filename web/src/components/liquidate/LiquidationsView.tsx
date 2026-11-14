@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useConnection, usePublicClient, useReadContract } from "wagmi";
-import { erc20Abi, type Abi, type Address } from "viem";
+import { useConnection, useReadContract } from "wagmi";
+import type { Abi, Address } from "viem";
 import { useAccounts, useMarkets, useUserOverview, type MarketInfo } from "@/hooks/useProtocol";
 import { useLiquidationFeed } from "@/hooks/useActivity";
-import { useTx, type TxStep } from "@/hooks/useTx";
+import { NO_PERMIT, useTx, type PermitArg, type TxStep } from "@/hooks/useTx";
 import { PageHeader } from "@/components/market/PageHeader";
 import { Badge, Card, CardBody, CardHeader, EmptyState, StatCell, StatGrid, Table, Td, Th } from "@/components/ui/Card";
 import { metrics } from "@/components/market/useMarketMetrics";
@@ -44,7 +44,7 @@ export function LiquidationsView() {
   const atRisk = positions.filter((p) => p.dataOk && p.healthFactor >= WAD && p.healthFactor < (WAD * 12n) / 10n);
 
   return (
-    <div className="mx-auto max-w-[1240px] px-4 sm:px-6">
+    <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
       <PageHeader
         title="Liquidations"
         intro="When a loan's health factor drops below 1.0, anyone can repay part of its debt and receive the borrower's BTC at a discount. This keeps lenders whole. Every open loan is listed here, read straight from the contracts."
@@ -101,7 +101,7 @@ export function LiquidationsView() {
                 const band = riskBand(p.healthFactor, p.debt);
                 const mine = address && p.account.toLowerCase() === address.toLowerCase();
                 return (
-                  <tr key={p.account} className={band === "liquidatable" ? "bg-danger-soft/60" : "transition-colors hover:bg-[#fffaf5]"}>
+                  <tr key={p.account} className={band === "liquidatable" ? "bg-danger-soft/60" : "transition-colors hover:bg-wash"}>
                     <Td>
                       <span className="flex items-center gap-2.5">
                         <Avatar address={p.account} />
@@ -196,7 +196,6 @@ export function LiquidationsView() {
 function LiquidateDialog({ market, pos, onClose }: { market: MarketInfo; pos: Pos; onClose: () => void }) {
   const mounted = useMounted();
   const { user, account } = useUserOverview();
-  const publicClient = usePublicClient({ chainId: chain.id });
   const tx = useTx();
   const [str, setStr] = useState("");
   const typed = parseAmount(str);
@@ -218,29 +217,22 @@ function LiquidateDialog({ market, pos, onClose }: { market: MarketInfo; pos: Po
   const stillLiquidatable = p ? p.healthFactor < WAD && p.debt > 0n : true;
 
   let error: string | undefined;
-  if (!stillLiquidatable) error = "This loan is healthy again — it can't be liquidated right now.";
+  if (!stillLiquidatable) error = "This loan is healthy again, so it can't be liquidated right now.";
   else if (repay > musd) error = `You need ${fmtAmount(repay, 18, { max: 4 })} MUSD; your wallet has ${fmtAmount(musd, 18, { max: 4 })}.`;
 
-  const approveAmount = repay + repay / 200n + 1n;
+  // One transaction: an MUSD permit to the pool (which pulls the repayment) rides along with liquidateWithPermit.
+  const permitValue = repay + repay / 200n + 1n;
+  const build = (pm: PermitArg) => [pos.account, BTC, repay, minSeize, pm] as const;
   const steps: TxStep[] = [
     {
-      key: "approve",
-      label: "Approve MUSD",
-      address: MUSD,
-      abi: erc20Abi as Abi,
-      functionName: "approve",
-      args: [market.pool, approveAmount],
-      done: { title: "MUSD approved" },
-      skip: async () =>
-        (await publicClient!.readContract({ address: MUSD, abi: erc20Abi, functionName: "allowance", args: [account!, market.pool] })) >= approveAmount,
-    },
-    {
       key: "liquidate",
-      label: `Repay ${fmtAmount(repay, 18, { max: 4 })} MUSD and seize BTC`,
+      label: `Repay ${fmtAmount(repay, 18, { max: 4 })} MUSD and receive BTC`,
       address: market.liquidationManager,
       abi: liquidationManagerAbi as Abi,
-      functionName: "liquidate",
-      args: [pos.account, BTC, repay, minSeize],
+      functionName: "liquidateWithPermit",
+      args: build(NO_PERMIT),
+      permit: { token: MUSD, spender: market.pool, value: permitValue, buildArgs: build },
+      gasFloor: 650_000n,
       done: {
         title: "Liquidation complete",
         body: `Repaid ${fmtAmount(repay, 18, { max: 4 })} MUSD of ${shortAddr(pos.account)}'s loan and received ${fmtAmount(p?.seizeToLiquidator ?? 0n)} BTC.`,
