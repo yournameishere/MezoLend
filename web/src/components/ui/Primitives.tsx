@@ -30,7 +30,7 @@ export function Num({ value, format, className = "" }: { value: number; format: 
 }
 
 export function Skeleton({ className = "" }: { className?: string }) {
-  return <span className={`inline-block animate-pulse rounded-md bg-[#f1ece6] ${className}`} aria-hidden />;
+  return <span className={`inline-block animate-pulse rounded-md bg-tang-soft ${className}`} aria-hidden />;
 }
 
 export function ExplorerLink({
@@ -50,7 +50,7 @@ export function ExplorerLink({
       href={href}
       target="_blank"
       rel="noreferrer"
-      className={`group inline-flex items-center gap-0.5 font-mono text-[12.5px] text-mute transition-colors hover:text-tang-deep ${className}`}
+      className={`group inline-flex items-center gap-0.5 text-[12.5px] font-medium text-tang-deep underline decoration-tang-line underline-offset-2 transition-colors hover:decoration-tang-deep ${className}`}
     >
       {children ?? shortAddr(hash ?? address, hash ? 6 : 4)}
       <ArrowUpRight size={12} strokeWidth={2} className="opacity-50 transition-opacity group-hover:opacity-100" aria-hidden />

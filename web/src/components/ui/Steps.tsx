@@ -1,24 +1,25 @@
 "use client";
 
 import type { Hash } from "viem";
+import { Check, X } from "lucide-react";
 import type { StepState } from "@/hooks/useTx";
 import { ExplorerLink } from "./Primitives";
 
 const copy: Record<StepState, string> = {
   idle: "Waiting",
   skipped: "Not needed",
-  signing: "Confirm in wallet",
+  permit: "Sign the permit in your wallet",
+  signing: "Confirm in your wallet",
   pending: "Confirming on Mezo",
-  done: "Done",
+  done: "Confirmed",
   error: "Stopped",
 };
 
-/** Ordered transaction steps (approve → action). Only rendered once a flow starts. */
+/** Live progress of a transaction flow, with an explorer link for every transaction sent. */
 export function Steps({
   steps,
   states,
   hashes,
-  tone = "supply",
 }: {
   steps: { key: string; label: string }[];
   states: Record<string, StepState>;
@@ -26,33 +27,31 @@ export function Steps({
   tone?: "supply" | "borrow";
 }) {
   if (!Object.keys(states).length) return null;
-  const accent = tone === "supply" ? "bg-tang" : "bg-char";
   return (
-    <ol className="mt-4 space-y-2 rounded-[12px] border border-line bg-wash p-3" aria-live="polite">
-      {steps.map((s, i) => {
+    <ol className="mt-4 divide-y divide-line border-y border-line" aria-live="polite">
+      {steps.map((s) => {
         const st = states[s.key] ?? "idle";
+        const live = st === "signing" || st === "pending" || st === "permit";
         return (
-          <li key={s.key} className="flex items-center gap-3 text-[13px]">
+          <li key={s.key} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2.5 text-[13.5px]">
             <span
-              className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-bold ${
+              className={`grid h-5 w-5 shrink-0 place-items-center rounded-full ${
                 st === "done"
-                  ? `${accent} text-paper`
+                  ? "bg-safe text-paper"
                   : st === "error"
                     ? "bg-danger text-paper"
-                    : st === "signing" || st === "pending"
-                      ? "border border-ink text-ink"
-                      : "border border-line text-faint"
+                    : live
+                      ? "border-2 border-tang border-r-transparent motion-safe:animate-spin"
+                      : "border border-line-2"
               }`}
+              aria-hidden
             >
-              {st === "done" ? "✓" : st === "error" ? "!" : i + 1}
+              {st === "done" ? <Check size={12} strokeWidth={3} /> : st === "error" ? <X size={12} strokeWidth={3} /> : null}
             </span>
-            <span className={st === "skipped" ? "text-faint line-through" : "text-ink"}>{s.label}</span>
-            <span className="ml-auto flex items-center gap-2 text-mute">
-              {(st === "signing" || st === "pending") && (
-                <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-ink" aria-hidden />
-              )}
+            <span className={`min-w-0 font-medium ${st === "skipped" ? "text-faint line-through" : "text-ink"}`}>{s.label}</span>
+            <span className={`ml-auto flex items-center gap-2 ${st === "error" ? "text-danger" : "text-mute"}`}>
               {copy[st]}
-              {hashes[s.key] && <ExplorerLink hash={hashes[s.key]}>tx</ExplorerLink>}
+              {hashes[s.key] && <ExplorerLink hash={hashes[s.key]}>View transaction</ExplorerLink>}
             </span>
           </li>
         );

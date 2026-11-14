@@ -8,6 +8,7 @@ import {
   liquidationManagerAbi,
   marketRegistryAbi,
   mezoLendLensAbi,
+  mezoLendZapAbi,
   priceOracleAbi,
 } from "./abis";
 
@@ -34,6 +35,11 @@ export const REGISTRY = deployment.registry as Address;
 export const ORACLE = deployment.oracle as Address;
 export const START_BLOCK = deployment.startBlock;
 export const OPERATOR = deployment.deployer as Address;
+export const ZAP = deployment.zap as Address;
+export const MEZO = deployment.mezo as Address;
+export const POOLS_ROUTER = deployment.poolsRouter as Address;
+export const POOLS_FACTORY = deployment.poolsFactory as Address;
+export const MEZO_POOLS_APP = "https://mezo.org/feature/pools";
 
 /** Native BTC kept back for gas when a user deposits "max" collateral. */
 export const GAS_RESERVE = 20_000_000_000_000n; // 0.00002 BTC
@@ -50,6 +56,7 @@ const allAbis = [
   interestRateModelAbi,
   marketRegistryAbi,
   mezoLendLensAbi,
+  mezoLendZapAbi,
 ] as const;
 
 const seen = new Set<string>();
@@ -76,6 +83,7 @@ export const contractLinks = [
   { label: "Edge · collateral manager", address: deployment.edge.collateralManager },
   { label: "Edge · liquidation manager", address: deployment.edge.liquidationManager },
   { label: "Edge · rate model", address: deployment.edge.interestRateModel },
+  { label: "Swap & supply zap (Mezo Pools)", address: deployment.zap },
   { label: "MUSD token", address: deployment.musd },
 ] as const;
 
@@ -87,5 +95,6 @@ export {
   liquidationManagerAbi,
   marketRegistryAbi,
   mezoLendLensAbi,
+  mezoLendZapAbi,
   priceOracleAbi,
 };
