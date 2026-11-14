@@ -58,7 +58,7 @@ const victim = privateKeyToAccount(pk(env.DEMO_DEV_KEY));
 const walletOf = (account) => createWalletClient({ chain, transport, account });
 
 const log = { site: BASE, wallet: user.address, startedAt: new Date().toISOString(), steps: [], setup: [] };
-const save = () => writeFileSync(resolve(root, "deployments/e2e-prod-log.json"), JSON.stringify(log, null, 2) + "\n");
+const save = () => writeFileSync(resolve(root, process.env.E2E_LOG || "deployments/e2e-prod-log.json"), JSON.stringify(log, null, 2) + "\n");
 let current = "setup";
 let authorized = false; // like a fresh MetaMask: no accounts exposed until the user approves the connection
 const sent = []; // { step, hash }

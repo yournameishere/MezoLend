@@ -1,0 +1,190 @@
+{
+  "site": "https://mezolend.vercel.app",
+  "wallet": "0x7655BA370f01265806faBD5B0f030c94C81b2cfe",
+  "startedAt": "2026-11-14T08:47:53.233Z",
+  "steps": [
+    {
+      "name": "connect wallet",
+      "ok": true,
+      "seconds": 7,
+      "transactions": []
+    },
+    {
+      "name": "Borrow: post 0.003 BTC and borrow 60 MUSD in Core",
+      "ok": true,
+      "seconds": 19,
+      "transactions": [
+        {
+          "hash": "0xc889d3970deda0a13e88b1be324d1848d332ea53909d06a3988a39858a313d29",
+          "receipt": "success",
+          "explorer": "ok",
+          "block": 16772126,
+          "gasUsed": 289208,
+          "url": "https://explorer.test.mezo.org/tx/0xc889d3970deda0a13e88b1be324d1848d332ea53909d06a3988a39858a313d29"
+        }
+      ]
+    },
+    {
+      "name": "Close: repay the Core loan in full and withdraw all BTC (permit)",
+      "ok": true,
+      "seconds": 21,
+      "transactions": [
+        {
+          "hash": "0x0e545993de689cb225f8a6c93aec3cf699222d8ce7f99f09d25da318281107de",
+          "receipt": "success",
+          "explorer": "ok",
+          "block": 16772132,
+          "gasUsed": 225000,
+          "url": "https://explorer.test.mezo.org/tx/0x0e545993de689cb225f8a6c93aec3cf699222d8ce7f99f09d25da318281107de"
+        }
+      ]
+    },
+    {
+      "name": "Dashboard: history lists the actions",
+      "ok": true,
+      "seconds": 2,
+      "transactions": []
+    }
+  ],
+  "setup": [],
+  "responsive": [
+    {
+      "size": "phone-360",
+      "route": "/",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-360",
+      "route": "/dashboard",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-360",
+      "route": "/lend",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-360",
+      "route": "/borrow",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-360",
+      "route": "/swap",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-360",
+      "route": "/markets",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-360",
+      "route": "/liquidations",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-360",
+      "route": "/analytics",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-360",
+      "route": "/docs",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/dashboard",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/lend",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/borrow",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/swap",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/markets",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/liquidations",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/analytics",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/docs",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/dashboard",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/lend",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/borrow",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/swap",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/markets",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/liquidations",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/analytics",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/docs",
+      "horizontalOverflowPx": 0
+    }
+  ],
+  "consoleErrors": [],
+  "finishedAt": "2026-11-14T08:50:26.856Z",
+  "summary": "4/4 UI steps passed, 2 transactions confirmed on the explorer"
+}
