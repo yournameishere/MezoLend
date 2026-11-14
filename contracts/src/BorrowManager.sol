@@ -212,10 +212,10 @@ contract BorrowManager is AccessControl, Pausable, ReentrancyGuard, IBorrowManag
         if (d.borrowCapacity <= debt) return 0;
         ICollateralManager.AssetConfig memory c = collateralManager.getAssetConfig(asset);
         uint256 spare = d.borrowCapacity - debt;
-        // capacity per whole token = price * ltv
-        uint256 capacityPerToken = oracle.getPrice(asset).mulDiv(c.ltv, WAD);
-        if (capacityPerToken == 0) return bal;
-        uint256 maxAmt = spare.mulDiv(10 ** c.decimals, capacityPerToken);
+        // Inverse of _requireSolventAfterWithdraw, rounding down at every step so the result always passes
+        // it (audit L-01): the most collateral value that can leave, then that value in tokens.
+        uint256 maxValue = spare.mulDiv(WAD, c.ltv);
+        uint256 maxAmt = maxValue.mulDiv(10 ** c.decimals, oracle.getPrice(asset));
         return maxAmt < bal ? maxAmt : bal;
     }
 
