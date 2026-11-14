@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Schibsted_Grotesk } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Providers } from "@/components/shell/Providers";
 import { Header } from "@/components/shell/Header";
@@ -18,7 +19,7 @@ const schibsted = Schibsted_Grotesk({
 export const metadata: Metadata = {
   metadataBase: new URL("https://mezolend.vercel.app"),
   title: {
-    default: "MezoLend: lend and borrow MUSD on Mezo",
+    default: "MezoLend: borrow MUSD against your bitcoin",
     template: "%s · MezoLend",
   },
   description:
@@ -55,6 +56,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           </main>
           <Footer />
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
