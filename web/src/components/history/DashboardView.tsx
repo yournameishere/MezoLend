@@ -31,7 +31,7 @@ export function DashboardView() {
   if (!mounted || !account) {
     return (
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-        <PageHeader title="Dashboard" intro="Your supplies, loans and full on-chain history across MezoLend markets." />
+        <PageHeader title="Dashboard" intro="What you lend, what you owe, and every action you have taken, read straight from the contracts." />
         <Card>
           <EmptyState title="Connect a wallet to see your dashboard" action={<div className="w-56"><ConnectPrompt /></div>}>
             Positions are read directly from the MezoLend contracts on Mezo Testnet.
@@ -56,7 +56,7 @@ export function DashboardView() {
 
   return (
     <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-      <PageHeader title="Dashboard" intro="Your supplies, loans and full on-chain history across MezoLend markets.">
+      <PageHeader title="Dashboard" intro="What you lend, what you owe, and every action you have taken, read straight from the contracts.">
         <div className="flex items-center gap-2.5 rounded-[12px] border border-line bg-paper px-3 py-2">
           <Avatar address={account} size={28} />
           <div>
@@ -104,12 +104,12 @@ export function DashboardView() {
       <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-6 xl:grid-cols-2">
         <Card>
           <CardHeader
-            title="Your supplies"
+            title="What you lend"
             description={lending.length ? `${fmtNum(supplied, 4, 2)} MUSD earning interest` : undefined}
             action={
               <Link href="/lend">
                 <Button variant="supply" size="sm">
-                  Supply
+                  Lend
                 </Button>
               </Link>
             }
