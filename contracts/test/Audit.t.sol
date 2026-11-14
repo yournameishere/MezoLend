@@ -14,7 +14,7 @@ contract RejectsNative {
     }
 }
 
-/// @notice Proof-of-concept tests for every finding in docs/SECURITY.md. Each one failed against the
+/// @notice Proof-of-concept tests for every finding in the README security review. Each one failed against the
 ///         pre-audit contracts and is kept as a regression test.
 contract AuditTest is BaseTest {
     function _openPosition() internal {

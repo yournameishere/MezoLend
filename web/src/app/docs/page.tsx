@@ -262,12 +262,12 @@ export default function DocsPage() {
               failed against the old code, a fix, and the test kept as a regression test. The full write-up, including what a contract
               cannot prevent, is in{" "}
               <a
-                href="https://github.com/yournameishere/MezoLend/blob/main/docs/SECURITY.md"
+                href="https://github.com/yournameishere/MezoLend#security-review"
                 target="_blank"
                 rel="noreferrer"
                 className="font-medium text-tang-deep hover:underline"
               >
-                docs/SECURITY.md
+                the project README
               </a>
               .
             </p>
