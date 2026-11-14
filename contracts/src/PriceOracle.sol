@@ -18,6 +18,9 @@ contract PriceOracle is AccessControl, IPriceOracle {
     uint8 public constant SOURCE_PRIMARY = 1;
     uint8 public constant SOURCE_FALLBACK = 2;
     uint256 public constant MAX_PYTH_CONF_BPS = 200; // reject Pyth prices whose confidence band exceeds 2%
+    /// @notice A price stamped further than this in the future is invalid (audit L-02). Small drift between
+    ///         the feed's clock and block time is normal; a far-future stamp would otherwise stay "fresh".
+    uint256 public constant MAX_CLOCK_DRIFT = 5 minutes;
 
     struct FeedConfig {
         address aggregator;
@@ -146,7 +149,7 @@ contract PriceOracle is AccessControl, IPriceOracle {
     }
 
     function _isStale(uint256 updatedAt, uint256 maxAge) internal view returns (bool) {
-        if (updatedAt >= block.timestamp) return false;
+        if (updatedAt >= block.timestamp) return updatedAt - block.timestamp > MAX_CLOCK_DRIFT;
         return block.timestamp - updatedAt > maxAge;
     }
 
