@@ -489,7 +489,7 @@ function RepayForm({
     ];
   }, [market, permitValue, full, amt, account]);
 
-  if (connected && debt === 0n) {
+  if (connected && debt === 0n && !Object.keys(tx.states).length) {
     return <p className="py-6 text-center text-[14px] text-mute">You don&apos;t owe anything in this market.</p>;
   }
 
@@ -684,7 +684,7 @@ function CloseForm({ market, um, musd, connected }: { market: MarketInfo; um?: U
     ];
   }, [debt, bal, market, permitValue]);
 
-  if (connected && debt === 0n && bal === 0n) {
+  if (connected && debt === 0n && bal === 0n && !Object.keys(tx.states).length) {
     return (
       <p className="py-6 text-center text-[14px] text-mute">
         Nothing to close in this market. <Link href="/dashboard" className="text-ink underline">See your dashboard</Link>.
