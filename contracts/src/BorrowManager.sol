@@ -7,6 +7,7 @@ import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {ILendingPool, ICollateralManager, IPriceOracle, IBorrowManager} from "./interfaces/IMezoLend.sol";
+import {PermitLib} from "./libraries/PermitLib.sol";
 
 /// @title BorrowManager
 /// @notice Borrower entry point for one MezoLend market. Prices collateral through the oracle, enforces
@@ -86,6 +87,22 @@ contract BorrowManager is AccessControl, Pausable, ReentrancyGuard, IBorrowManag
 
     /// @notice Repay MUSD (approved to the pool) and optionally withdraw collateral in one transaction.
     function repayAndWithdraw(uint256 repayAmount, address asset, uint256 withdrawAmount) external nonReentrant {
+        _repayAndWithdraw(repayAmount, asset, withdrawAmount);
+    }
+
+    /// @notice repayAndWithdraw in one transaction: an EIP-2612 MUSD signature (spender = the pool) replaces
+    ///         the approve. Sign `permit.value` slightly above the debt when repaying in full.
+    function repayAndWithdrawWithPermit(
+        uint256 repayAmount,
+        address asset,
+        uint256 withdrawAmount,
+        PermitLib.Permit calldata permit
+    ) external nonReentrant {
+        PermitLib.tryPermit(pool.asset(), msg.sender, address(pool), permit);
+        _repayAndWithdraw(repayAmount, asset, withdrawAmount);
+    }
+
+    function _repayAndWithdraw(uint256 repayAmount, address asset, uint256 withdrawAmount) internal {
         pool.accrueInterest();
         if (repayAmount > 0) pool.repayFrom(msg.sender, msg.sender, repayAmount);
         if (withdrawAmount > 0) _withdraw(msg.sender, asset, withdrawAmount);

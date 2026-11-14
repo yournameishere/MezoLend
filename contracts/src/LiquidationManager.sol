@@ -6,6 +6,7 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {ILendingPool, ICollateralManager, IBorrowManager} from "./interfaces/IMezoLend.sol";
+import {PermitLib} from "./libraries/PermitLib.sol";
 
 /// @title LiquidationManager
 /// @notice Permissionless liquidations for one MezoLend market. When an account's health factor drops
@@ -86,6 +87,25 @@ contract LiquidationManager is AccessControl, Pausable, ReentrancyGuard {
         external
         nonReentrant
         whenNotPaused
+        returns (uint256 repaid, uint256 seizedToLiquidator)
+    {
+        return _liquidate(borrower, asset, repayAmount, minSeizeAmount);
+    }
+
+    /// @notice liquidate() in one transaction: an EIP-2612 MUSD signature (spender = the pool) replaces the approve.
+    function liquidateWithPermit(
+        address borrower,
+        address asset,
+        uint256 repayAmount,
+        uint256 minSeizeAmount,
+        PermitLib.Permit calldata permit
+    ) external nonReentrant whenNotPaused returns (uint256 repaid, uint256 seizedToLiquidator) {
+        PermitLib.tryPermit(pool.asset(), msg.sender, address(pool), permit);
+        return _liquidate(borrower, asset, repayAmount, minSeizeAmount);
+    }
+
+    function _liquidate(address borrower, address asset, uint256 repayAmount, uint256 minSeizeAmount)
+        internal
         returns (uint256 repaid, uint256 seizedToLiquidator)
     {
         if (repayAmount == 0) revert ZeroAmount();

@@ -2,12 +2,14 @@
 pragma solidity 0.8.28;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import {IAggregatorV3, IPyth} from "../../src/interfaces/IExternal.sol";
 
-contract MockERC20 is ERC20 {
+/// @dev ERC-20 with EIP-2612 permit (domain name = token name, version "1"), like MUSD on Mezo.
+contract MockERC20 is ERC20Permit {
     uint8 internal immutable _dec;
 
-    constructor(string memory n, string memory s, uint8 d) ERC20(n, s) {
+    constructor(string memory n, string memory s, uint8 d) ERC20(n, s) ERC20Permit(n) {
         _dec = d;
     }
 

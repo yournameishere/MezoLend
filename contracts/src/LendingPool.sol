@@ -10,6 +10,7 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IInterestRateModel} from "./interfaces/IMezoLend.sol";
+import {PermitLib} from "./libraries/PermitLib.sol";
 
 /// @title LendingPool
 /// @notice MUSD lending pool for one MezoLend market.
@@ -201,6 +202,15 @@ contract LendingPool is ERC4626, AccessControl, Pausable, ReentrancyGuard {
         _emitSnapshot();
     }
 
+    /// @notice Supply MUSD in one transaction: an EIP-2612 signature replaces the separate approve.
+    function depositWithPermit(uint256 assets, address receiver, PermitLib.Permit calldata permit)
+        external
+        returns (uint256 shares)
+    {
+        PermitLib.tryPermit(asset(), msg.sender, address(this), permit);
+        shares = deposit(assets, receiver);
+    }
+
     function maxDeposit(address) public view override returns (uint256) {
         if (paused()) return 0;
         if (supplyCap == 0) return type(uint256).max;
@@ -286,6 +296,18 @@ contract LendingPool is ERC4626, AccessControl, Pausable, ReentrancyGuard {
 
     /// @notice Repay `amount` (use type(uint256).max for full) of `borrower`'s debt from msg.sender.
     function repay(address borrower, uint256 amount) external nonReentrant returns (uint256) {
+        accrueInterest();
+        return _repay(msg.sender, borrower, amount);
+    }
+
+    /// @notice Repay with an EIP-2612 signature instead of a prior approve. When repaying in full, sign a
+    ///         `permit.value` slightly above the current debt: interest accrues until the transaction lands.
+    function repayWithPermit(address borrower, uint256 amount, PermitLib.Permit calldata permit)
+        external
+        nonReentrant
+        returns (uint256)
+    {
+        PermitLib.tryPermit(asset(), msg.sender, address(this), permit);
         accrueInterest();
         return _repay(msg.sender, borrower, amount);
     }
