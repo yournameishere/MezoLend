@@ -31,3 +31,6 @@ Thumbs.db
 
 # forge broadcast artefacts (summarised in deployments/deploy-log.json)
 contracts/broadcast/
+
+# e2e artefacts
+e2e/screens/

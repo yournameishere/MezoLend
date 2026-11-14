@@ -1,0 +1,13 @@
+{
+  "name": "mezolend-e2e",
+  "private": true,
+  "type": "module",
+  "description": "Drives the live MezoLend site in Chrome with a real Mezo Testnet wallet.",
+  "scripts": {
+    "prod": "node prod.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "^1.56.0",
+    "viem": "^2.57.19"
+  }
+}

@@ -377,7 +377,7 @@ function BorrowForm({
   }, [coll, amt, market]);
 
   const label =
-    coll > 0n && amt > 0n ? "Deposit & borrow" : coll > 0n ? `Deposit ${fmtAmount(coll)} BTC` : amt > 0n ? `Borrow ${fmtAmount(amt)} MUSD` : "Enter an amount";
+    coll > 0n && amt > 0n ? `Deposit ${fmtAmount(coll)} BTC and borrow ${fmtAmount(amt)} MUSD` : coll > 0n ? `Deposit ${fmtAmount(coll)} BTC` : amt > 0n ? `Borrow ${fmtAmount(amt)} MUSD` : "Enter an amount";
 
   return (
     <div>
