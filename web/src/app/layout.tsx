@@ -23,11 +23,11 @@ export const metadata: Metadata = {
     template: "%s · MezoLend",
   },
   description:
-    "Supply MUSD to earn from borrowers, or borrow MUSD against your BTC without selling it. Transparent, on-chain lending pools on Mezo.",
+    "Borrow MUSD against your BTC without selling it, or lend MUSD and earn what borrowers pay. A lending market with every rate, balance and liquidation on-chain on Mezo.",
   applicationName: "MezoLend",
   openGraph: {
     title: "MezoLend: lend and borrow MUSD on Mezo",
-    description: "Supply MUSD. Borrow against bitcoin. Every rate, balance and liquidation is on-chain.",
+    description: "Borrow dollars against your bitcoin, or lend MUSD and earn. Every rate, balance and liquidation is on-chain on Mezo.",
     type: "website",
   },
 };

@@ -90,7 +90,7 @@ export function MarketsView() {
               </div>
               <div className="flex flex-wrap items-center gap-2 px-6 pt-5 pb-6">
                 <Link href="/lend" onClick={() => setSettings({ marketId: Number(m.id) })}>
-                  <Button variant="supply">Supply</Button>
+                  <Button variant="supply">Lend</Button>
                 </Link>
                 <Link href="/borrow" onClick={() => setSettings({ marketId: Number(m.id) })}>
                   <Button variant="borrow">Borrow</Button>

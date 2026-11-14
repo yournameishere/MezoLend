@@ -81,22 +81,26 @@ export function MarketDetail({ id }: { id: number }) {
           </div>
         </div>
         <div className="flex gap-2">
-          <Link href="/lend" onClick={() => setSettings({ marketId: id })}>
-            <Button variant="supply" size="lg">
-              Supply
-            </Button>
+          <Link
+            href="/lend"
+            onClick={() => setSettings({ marketId: id })}
+            className="inline-flex h-12 items-center rounded-[var(--radius-ctl)] bg-tang px-6 text-[15px] font-semibold text-ink hover:bg-tang-hover"
+          >
+            Lend
           </Link>
-          <Link href="/borrow" onClick={() => setSettings({ marketId: id })}>
-            <Button variant="borrow" size="lg">
-              Borrow
-            </Button>
+          <Link
+            href="/borrow"
+            onClick={() => setSettings({ marketId: id })}
+            className="inline-flex h-12 items-center rounded-[var(--radius-ctl)] bg-ink px-6 text-[15px] font-semibold text-paper hover:bg-[#3d2a1a]"
+          >
+            Borrow
           </Link>
         </div>
       </div>
 
       <div className="mb-4 flex flex-wrap gap-2">
         {m && !paused && <Badge tone="safe">All actions open</Badge>}
-        {m?.poolPaused && <Badge tone="danger">Supply and borrowing paused</Badge>}
+        {m?.poolPaused && <Badge tone="danger">Lending and borrowing paused</Badge>}
         {m?.borrowPaused && <Badge tone="danger">Borrowing and withdrawals paused</Badge>}
         {m?.liquidationPaused && <Badge tone="danger">Liquidations paused</Badge>}
         {k && <Badge>{k.btcSource === 1 ? "Price from Skip oracle" : k.btcSource === 2 ? "Price from Pyth fallback" : "Price unavailable"}</Badge>}

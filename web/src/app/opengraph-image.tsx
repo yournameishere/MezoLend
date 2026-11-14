@@ -16,7 +16,7 @@ export default async function Image() {
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div style={{ fontSize: 76, fontWeight: 700, color: "#2a1c10", letterSpacing: -2, lineHeight: 1.05 }}>Borrow dollars against your bitcoin.</div>
-          <div style={{ fontSize: 32, color: "#5f5650" }}>Supply MUSD to earn. Post BTC to borrow. Every rate and loan on-chain on Mezo.</div>
+          <div style={{ fontSize: 32, color: "#6b5a4c" }}>Post BTC to borrow MUSD, or lend MUSD to earn. Every rate and loan on-chain on Mezo.</div>
         </div>
         <div style={{ display: "flex", gap: 14 }}>
           {["Live on Mezo Testnet", "Verified contracts", "Self-custody"].map((t) => (

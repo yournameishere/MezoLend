@@ -161,13 +161,14 @@ export function WalletButton() {
         className="flex h-10 items-center gap-2 rounded-[var(--radius-ctl)] border border-line bg-paper pr-2.5 pl-2 text-[13.5px] font-semibold transition-colors hover:border-line-2"
       >
         <Avatar address={address} />
-        <span className="font-mono text-[13px] whitespace-nowrap">{shortAddr(address)}</span>
+        <span className="hidden text-[13px] whitespace-nowrap min-[420px]:inline">{shortAddr(address)}</span>
+        <span className="sr-only min-[420px]:hidden">Wallet {shortAddr(address)}</span>
         <ChevronDown size={14} className="text-faint" aria-hidden />
       </button>
       {menu && (
         <>
           <button className="fixed inset-0 z-40 cursor-default" aria-label="Close menu" onClick={() => setMenu(false)} />
-          <div role="menu" className="absolute right-0 z-50 mt-2 w-72 rounded-[12px] border border-line bg-card p-2 shadow-[var(--shadow-pop)]">
+          <div role="menu" className="absolute right-0 z-50 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-[12px] border border-line bg-card p-2 shadow-[var(--shadow-pop)]">
             <div className="flex items-center gap-3 px-2.5 pt-2 pb-3">
               <Avatar address={address} size={32} />
               <div className="min-w-0">

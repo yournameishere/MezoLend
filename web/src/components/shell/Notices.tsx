@@ -45,7 +45,7 @@ export function NoticeBell() {
       {open && (
         <>
           <button className="fixed inset-0 z-40 cursor-default" aria-label="Close notifications" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-50 mt-2 w-[min(360px,calc(100vw-24px))] overflow-hidden rounded-[12px] border border-line bg-card shadow-[var(--shadow-pop)]">
+          <div className="fixed inset-x-3 top-[68px] z-50 overflow-hidden rounded-[12px] sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 sm:mt-2 sm:w-[360px] border border-line bg-card shadow-[var(--shadow-pop)]">
             <div className="flex items-center gap-1 border-b border-line px-2 py-2">
               {(["feed", "settings"] as const).map((t) => (
                 <button

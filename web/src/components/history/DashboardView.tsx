@@ -123,7 +123,7 @@ export function DashboardView() {
               <EmptyState title="Nothing supplied yet">
                 {user && toNum(user.musdBalance) > 0
                   ? `You have ${fmtAmount(user.musdBalance, 18, { max: 2 })} MUSD in your wallet that could be earning.`
-                  : "Supply MUSD to start earning from borrowers."}
+                  : "Lend MUSD to start earning from borrowers."}
               </EmptyState>
             ) : (
               <Table minWidth={520}>
