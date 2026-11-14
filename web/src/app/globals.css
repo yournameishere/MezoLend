@@ -1,0 +1,172 @@
+@import "tailwindcss";
+
+/* ───────────────────────── Tokens ─────────────────────────
+   White paper and warm neutrals. Light orange marks the brand and the lending side, ink marks borrowing.
+   Green, amber and red only ever encode loan health. */
+@theme {
+  --color-paper: #ffffff;
+  --color-wash: #faf8f5;
+  --color-card: #ffffff;
+  --color-line: #ece6df;
+  --color-line-2: #dcd2c8;
+  --color-ink: #17130f;
+  --color-mute: #5f5650;
+  --color-faint: #9a8f86;
+
+  --color-tang: #ff9a3c;
+  --color-tang-soft: #fff1e3;
+  --color-tang-line: #ffd9b5;
+  --color-tang-deep: #b8530a;
+  --color-char: #17130f;
+
+  --color-safe: #1f8a5b;
+  --color-safe-soft: #e8f5ee;
+  --color-warn: #b86200;
+  --color-warn-soft: #fff4e0;
+  --color-danger: #d23a41;
+  --color-danger-soft: #fdeeee;
+
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jbm), ui-monospace, monospace;
+
+  --radius-panel: 14px;
+  --radius-ctl: 9px;
+
+  --shadow-card: 0 1px 2px rgba(23, 19, 15, 0.04), 0 1px 1px rgba(23, 19, 15, 0.02);
+  --shadow-pop: 0 12px 32px -12px rgba(23, 19, 15, 0.18), 0 2px 6px rgba(23, 19, 15, 0.06);
+
+  --animate-rise: rise 0.5s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+  --animate-pulse-dot: pulse-dot 2.4s ease-in-out infinite;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes pulse-dot {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  background: var(--color-paper);
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  font-feature-settings: "tnum";
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-tang-soft);
+  color: var(--color-ink);
+}
+
+/* ───────────────────────── Type ───────────────────────── */
+.t-display {
+  font-weight: 650;
+  letter-spacing: -0.032em;
+  line-height: 1.04;
+}
+.t-title {
+  font-weight: 650;
+  letter-spacing: -0.022em;
+  line-height: 1.15;
+}
+.t-num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.t-label {
+  font-size: 12.5px;
+  color: var(--color-mute);
+}
+
+/* ───────────────────────── Focus & controls ───────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-tang-deep);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+input[type="range"].thermal {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 28px;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"].thermal::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-line);
+}
+input[type="range"].thermal::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-line);
+}
+input[type="range"].thermal::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -7px;
+  border-radius: 50%;
+  background: var(--color-paper);
+  border: 5px solid var(--color-tang);
+  box-shadow: 0 0 0 1px var(--color-line-2), 0 2px 6px rgba(23, 19, 15, 0.15);
+}
+input[type="range"].thermal::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-paper);
+  border: 4px solid var(--color-tang);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-2) transparent;
+}
+
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

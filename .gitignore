@@ -1,0 +1,30 @@
+# ── secrets ──
+.env
+.env.*
+!.env.example
+*.key
+
+# ── contracts (Foundry) ──
+contracts/out/
+contracts/cache/
+contracts/lib/
+contracts/broadcast/**/dry-run/
+
+# ── web (Next.js) ──
+node_modules/
+web/.next/
+web/out/
+web/next-env.d.ts
+web/*.tsbuildinfo
+.vercel/
+web/.vercel/
+
+# ── misc ──
+*.log
+.DS_Store
+Thumbs.db
+
+# local tooling
+.playwright-mcp/
+
+.vercel
