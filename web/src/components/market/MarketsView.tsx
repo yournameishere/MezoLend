@@ -89,7 +89,7 @@ export function MarketsView() {
                 <UtilBar u={metrics(m).utilization} className="mt-2" />
               </div>
               <div className="flex flex-wrap items-center gap-2 px-6 pt-5 pb-6">
-                <Link href="/supply" onClick={() => setSettings({ marketId: Number(m.id) })}>
+                <Link href="/lend" onClick={() => setSettings({ marketId: Number(m.id) })}>
                   <Button variant="supply">Supply</Button>
                 </Link>
                 <Link href="/borrow" onClick={() => setSettings({ marketId: Number(m.id) })}>

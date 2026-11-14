@@ -73,7 +73,7 @@ export default function DocsPage() {
           <Section id="lending" title="Supplying MUSD">
             <Steps steps={lenderSteps} />
             <p className="mt-4">
-              <Link href="/supply" className="font-semibold text-tang-deep hover:underline">
+              <Link href="/lend" className="font-semibold text-tang-deep hover:underline">
                 Go to Supply
               </Link>
             </p>

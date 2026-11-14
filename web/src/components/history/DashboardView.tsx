@@ -107,7 +107,7 @@ export function DashboardView() {
             title="Your supplies"
             description={lending.length ? `${fmtNum(supplied, 4, 2)} MUSD earning interest` : undefined}
             action={
-              <Link href="/supply">
+              <Link href="/lend">
                 <Button variant="supply" size="sm">
                   Supply
                 </Button>
@@ -157,7 +157,7 @@ export function DashboardView() {
                           <span className="t-num text-safe">+{fmtAmount(earned, 18, { max: 6 })}</span>
                         </Td>
                         <Td align="right">
-                          <Link href="/supply" onClick={() => setSettings({ marketId: Number(um.id) })}>
+                          <Link href="/lend" onClick={() => setSettings({ marketId: Number(um.id) })}>
                             <Button variant="outline" size="sm">
                               Manage
                             </Button>

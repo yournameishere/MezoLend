@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     return [
       { source: "/portfolio", destination: "/dashboard", permanent: true },
       { source: "/learn", destination: "/docs", permanent: true },
+      { source: "/supply", destination: "/lend", permanent: true },
     ];
   },
   turbopack: {

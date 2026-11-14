@@ -81,7 +81,7 @@ export function MarketDetail({ id }: { id: number }) {
           </div>
         </div>
         <div className="flex gap-2">
-          <Link href="/supply" onClick={() => setSettings({ marketId: id })}>
+          <Link href="/lend" onClick={() => setSettings({ marketId: id })}>
             <Button variant="supply" size="lg">
               Supply
             </Button>
