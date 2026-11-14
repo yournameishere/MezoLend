@@ -404,7 +404,7 @@ contract MezoLendTest is BaseTest {
         uint256 cut = bonus / 10;
         assertApproxEqAbs(seized, seizeTotal - cut, 10);
         assertEq(liq.balance - liqBtcBefore, seized);
-        assertApproxEqAbs(treasury.balance, cut, 10);
+        assertApproxEqAbs(cm.protocolBalance(BTC), cut, 10);
         assertEq(seized, p.seizeToLiquidator);
 
         IBorrowManager.AccountData memory afterD = bm.getAccountData(bob);

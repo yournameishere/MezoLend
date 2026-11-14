@@ -100,8 +100,9 @@ contract LiquidationManager is AccessControl, Pausable, ReentrancyGuard {
 
         repaid = pool.repayFrom(msg.sender, borrower, actualRepay);
         seizedToLiquidator = toLiquidator;
+        // Protocol cut stays inside the collateral manager (no external call), then the liquidator is paid.
+        if (protocolCut > 0) collateralManager.seizeToProtocol(borrower, asset, protocolCut);
         collateralManager.seize(borrower, asset, toLiquidator, msg.sender);
-        if (protocolCut > 0) collateralManager.seize(borrower, asset, protocolCut, pool.treasury());
 
         uint256 badDebt;
         if (!collateralManager.hasCollateral(borrower) && pool.borrowBalanceStored(borrower) > 0) {

@@ -137,9 +137,9 @@ contract InvariantTest is BaseTest {
         assertEq(musd.balanceOf(address(pool)), pool.totalCash());
     }
 
-    /// Collateral accounting always matches native BTC held by the CollateralManager.
+    /// Collateral accounting (user deposits + protocol share) always matches native BTC held.
     function invariant_CollateralMatchesBalance() public view {
-        assertEq(address(cm).balance, cm.totalDeposits(BTC));
+        assertEq(address(cm).balance, cm.totalDeposits(BTC) + cm.protocolBalance(BTC));
     }
 
     /// Pool is never insolvent in accounting terms: assets cover reserves claims.

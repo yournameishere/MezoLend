@@ -29,6 +29,9 @@ contract CollateralManager is AccessControl, ReentrancyGuard, ICollateralManager
     mapping(address asset => AssetConfig) internal _configs;
     mapping(address user => mapping(address asset => uint256)) internal _balances;
     mapping(address asset => uint256) public totalDeposits;
+    /// @notice Protocol's share of liquidation bonuses, held here until an admin claims it. Kept out of
+    ///         liquidate() so a treasury that cannot receive BTC can never block liquidations (audit M-01).
+    mapping(address asset => uint256) public protocolBalance;
 
     event AssetConfigured(
         address indexed asset,
@@ -42,6 +45,8 @@ contract CollateralManager is AccessControl, ReentrancyGuard, ICollateralManager
     event CollateralDeposited(address indexed user, address indexed asset, uint256 amount);
     event CollateralWithdrawn(address indexed user, address indexed asset, uint256 amount, address to);
     event CollateralSeized(address indexed user, address indexed asset, uint256 amount, address indexed to);
+    event ProtocolCollateralCredited(address indexed user, address indexed asset, uint256 amount);
+    event ProtocolCollateralClaimed(address indexed asset, uint256 amount, address indexed to);
 
     error AssetNotAccepted();
     error InvalidConfig();
@@ -131,6 +136,30 @@ contract CollateralManager is AccessControl, ReentrancyGuard, ICollateralManager
         _debit(from, asset, amount);
         _send(asset, to, amount);
         emit CollateralSeized(from, asset, amount, to);
+    }
+
+    /// @notice Moves `amount` of `from`'s collateral to the protocol balance (no transfer out).
+    function seizeToProtocol(address from, address asset, uint256 amount)
+        external
+        onlyRole(CONTROLLER_ROLE)
+        nonReentrant
+    {
+        _debit(from, asset, amount);
+        protocolBalance[asset] += amount;
+        emit ProtocolCollateralCredited(from, asset, amount);
+    }
+
+    /// @notice Sends accumulated protocol collateral to `to`.
+    function claimProtocolCollateral(address asset, uint256 amount, address to)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+        nonReentrant
+    {
+        if (amount == 0) revert ZeroAmount();
+        if (amount > protocolBalance[asset]) revert InsufficientCollateral();
+        protocolBalance[asset] -= amount;
+        _send(asset, to, amount);
+        emit ProtocolCollateralClaimed(asset, amount, to);
     }
 
     function _debit(address user, address asset, uint256 amount) internal {

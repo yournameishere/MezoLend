@@ -52,6 +52,8 @@ interface ICollateralManager {
     function depositFor(address user, address asset, uint256 amount) external payable;
     function withdrawTo(address user, address asset, uint256 amount, address to) external;
     function seize(address from, address asset, uint256 amount, address to) external;
+    function seizeToProtocol(address from, address asset, uint256 amount) external;
+    function protocolBalance(address asset) external view returns (uint256);
     function balanceOf(address user, address asset) external view returns (uint256);
     function totalDeposits(address asset) external view returns (uint256);
     function getAssets() external view returns (address[] memory);
