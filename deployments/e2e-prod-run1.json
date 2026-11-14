@@ -1,0 +1,379 @@
+{
+  "site": "https://mezolend.vercel.app",
+  "wallet": "0x7655BA370f01265806faBD5B0f030c94C81b2cfe",
+  "startedAt": "2026-11-14T08:36:46.247Z",
+  "steps": [
+    {
+      "name": "connect wallet",
+      "ok": false,
+      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /Connect wallet/ }).first()\u001b[22m\n"
+    },
+    {
+      "name": "Get MUSD: swap 0.0015 BTC for MUSD on Mezo Pools",
+      "ok": true,
+      "seconds": 20,
+      "transactions": [
+        {
+          "hash": "0x941be4c0a08b129213ce538fbffa141b57af40975a6250d2916825bc530c4e58",
+          "receipt": "success",
+          "explorer": "ok",
+          "block": 16771984,
+          "gasUsed": 350000,
+          "url": "https://explorer.test.mezo.org/tx/0x941be4c0a08b129213ce538fbffa141b57af40975a6250d2916825bc530c4e58"
+        }
+      ]
+    },
+    {
+      "name": "Get MUSD: swap 4 MEZO for MUSD with a MEZO permit",
+      "ok": true,
+      "seconds": 14,
+      "transactions": [
+        {
+          "hash": "0x8599eac8b70ab4437f32083d7a83fe7dd064e57f5b62b84c9f8e38e9f95237d6",
+          "receipt": "success",
+          "explorer": "ok",
+          "block": 16771987,
+          "gasUsed": 350000,
+          "url": "https://explorer.test.mezo.org/tx/0x8599eac8b70ab4437f32083d7a83fe7dd064e57f5b62b84c9f8e38e9f95237d6"
+        }
+      ]
+    },
+    {
+      "name": "Lend: lend 50 MUSD in Core with an MUSD permit",
+      "ok": true,
+      "seconds": 14,
+      "transactions": [
+        {
+          "hash": "0x03bb52a2d9df69c735deebe18f92c97c5724d6c7deaa3c84e693f681fabdb9a4",
+          "receipt": "success",
+          "explorer": "ok",
+          "block": 16771991,
+          "gasUsed": 178062,
+          "url": "https://explorer.test.mezo.org/tx/0x03bb52a2d9df69c735deebe18f92c97c5724d6c7deaa3c84e693f681fabdb9a4"
+        }
+      ]
+    },
+    {
+      "name": "Lend: withdraw 10 MUSD from Core",
+      "ok": true,
+      "seconds": 7,
+      "transactions": [
+        {
+          "hash": "0x98f48f3f78ad95419d6e4996a21dcf527a309fbd9f3e4034735742f742d1da1f",
+          "receipt": "success",
+          "explorer": "ok",
+          "block": 16771992,
+          "gasUsed": 107280,
+          "url": "https://explorer.test.mezo.org/tx/0x98f48f3f78ad95419d6e4996a21dcf527a309fbd9f3e4034735742f742d1da1f"
+        }
+      ]
+    },
+    {
+      "name": "Get MUSD: swap 0.0005 BTC and lend it in Edge in one transaction",
+      "ok": true,
+      "seconds": 10,
+      "transactions": [
+        {
+          "hash": "0xcc95dbe8872b3e61df79434a752c8ec3b4329a3bb1a6c49fa9f15a5b049bc6b3",
+          "receipt": "success",
+          "explorer": "ok",
+          "block": 16771995,
+          "gasUsed": 360133,
+          "url": "https://explorer.test.mezo.org/tx/0xcc95dbe8872b3e61df79434a752c8ec3b4329a3bb1a6c49fa9f15a5b049bc6b3"
+        }
+      ]
+    },
+    {
+      "name": "Borrow: post 0.003 BTC and borrow 60 MUSD in Core",
+      "ok": true,
+      "seconds": 12,
+      "transactions": [
+        {
+          "hash": "0xdbfdb0b559e2cd3acef7c33a093ce607b56812cdedd962f95640152f3e7ccc84",
+          "receipt": "success",
+          "explorer": "ok",
+          "block": 16771998,
+          "gasUsed": 306308,
+          "url": "https://explorer.test.mezo.org/tx/0xdbfdb0b559e2cd3acef7c33a093ce607b56812cdedd962f95640152f3e7ccc84"
+        }
+      ]
+    },
+    {
+      "name": "Borrow: repay 20 MUSD with an MUSD permit",
+      "ok": true,
+      "seconds": 11,
+      "transactions": [
+        {
+          "hash": "0xa60776fec3a4aa3be0f65e995fb3365d3685109792b26cdaef58bb5f7453cecb",
+          "receipt": "success",
+          "explorer": "ok",
+          "block": 16772000,
+          "gasUsed": 150000,
+          "url": "https://explorer.test.mezo.org/tx/0xa60776fec3a4aa3be0f65e995fb3365d3685109792b26cdaef58bb5f7453cecb"
+        }
+      ]
+    },
+    {
+      "name": "Collateral: add 0.0005 BTC",
+      "ok": true,
+      "seconds": 12,
+      "transactions": [
+        {
+          "hash": "0x2f75ebea8452db1fc312616e5faceb6ba4926626ff8bf43d64aa169dab7e390b",
+          "receipt": "success",
+          "explorer": "ok",
+          "block": 16772002,
+          "gasUsed": 65049,
+          "url": "https://explorer.test.mezo.org/tx/0x2f75ebea8452db1fc312616e5faceb6ba4926626ff8bf43d64aa169dab7e390b"
+        }
+      ]
+    },
+    {
+      "name": "Collateral: withdraw 0.0003 BTC",
+      "ok": true,
+      "seconds": 15,
+      "transactions": [
+        {
+          "hash": "0x4edc6878bb68e1c3a5120583118e74310f8a8268f936a7a7092e5f82ab8bc5b1",
+          "receipt": "success",
+          "explorer": "ok",
+          "block": 16772006,
+          "gasUsed": 143464,
+          "url": "https://explorer.test.mezo.org/tx/0x4edc6878bb68e1c3a5120583118e74310f8a8268f936a7a7092e5f82ab8bc5b1"
+        }
+      ]
+    },
+    {
+      "name": "Get MUSD: repay the Core loan with 0.0002 BTC through Mezo Pools",
+      "ok": true,
+      "seconds": 12,
+      "transactions": [
+        {
+          "hash": "0x1a8f34c38fefa51a21cee93ce44099824c413a3fca8e4f1fec8194cead492010",
+          "receipt": "success",
+          "explorer": "ok",
+          "block": 16772010,
+          "gasUsed": 350000,
+          "url": "https://explorer.test.mezo.org/tx/0x1a8f34c38fefa51a21cee93ce44099824c413a3fca8e4f1fec8194cead492010"
+        }
+      ]
+    },
+    {
+      "name": "Liquidate: repay an unhealthy Edge loan with an MUSD permit",
+      "ok": true,
+      "seconds": 15,
+      "transactions": [
+        {
+          "hash": "0xd0859bcc83a00c04c8199f9d9a1f1ee750a166ecdcf63c573ccdd13c6db633d4",
+          "receipt": "success",
+          "explorer": "ok",
+          "block": 16772017,
+          "gasUsed": 325000,
+          "url": "https://explorer.test.mezo.org/tx/0xd0859bcc83a00c04c8199f9d9a1f1ee750a166ecdcf63c573ccdd13c6db633d4"
+        }
+      ]
+    },
+    {
+      "name": "Close: repay the Core loan in full and withdraw all BTC (permit)",
+      "ok": false,
+      "error": "timed out waiting for confirmation"
+    },
+    {
+      "name": "Dashboard: history lists the actions",
+      "ok": true,
+      "seconds": 2,
+      "transactions": []
+    }
+  ],
+  "setup": [
+    {
+      "label": "fund test wallet with 0.0095 BTC",
+      "from": "0x7c298d22acc23c5931B3F1d6aB5D9f6Ded85B1b7",
+      "hash": "0x970bc1f4bf4325512e751ea2eb06738a2f95694eee36f498da1a657712126417",
+      "status": "success",
+      "explorer": "https://explorer.test.mezo.org/tx/0x970bc1f4bf4325512e751ea2eb06738a2f95694eee36f498da1a657712126417"
+    },
+    {
+      "label": "send 6 MUSD to test wallet",
+      "from": "0x7c298d22acc23c5931B3F1d6aB5D9f6Ded85B1b7",
+      "hash": "0x2d65ad642ae7d7278159cbea28061f858a7258640b7239027f7f6fcfbc197b8d",
+      "status": "success",
+      "explorer": "https://explorer.test.mezo.org/tx/0x2d65ad642ae7d7278159cbea28061f858a7258640b7239027f7f6fcfbc197b8d"
+    },
+    {
+      "label": "approve 5 MUSD to Mezo Pools router",
+      "from": "0x7655BA370f01265806faBD5B0f030c94C81b2cfe",
+      "hash": "0x7937f9a1a64e70b79fafca1feea101da6ed1239b5ff23d2c3c75c01691b59eed",
+      "status": "success",
+      "explorer": "https://explorer.test.mezo.org/tx/0x7937f9a1a64e70b79fafca1feea101da6ed1239b5ff23d2c3c75c01691b59eed"
+    },
+    {
+      "label": "buy MEZO with 5 MUSD on Mezo Pools",
+      "from": "0x7655BA370f01265806faBD5B0f030c94C81b2cfe",
+      "hash": "0x28d442ad01f7be329405bd9ef6268bb1f8d9b50cb2b407cd9eb26f02283dc991",
+      "status": "success",
+      "explorer": "https://explorer.test.mezo.org/tx/0x28d442ad01f7be329405bd9ef6268bb1f8d9b50cb2b407cd9eb26f02283dc991"
+    },
+    {
+      "label": "victim: post 0.0012 BTC, borrow 61.610 MUSD in Edge",
+      "from": "0xB66Fbb2c475Bfd1c20cCc9f118c69b8FE71fca20",
+      "hash": "0x4ce42eb5d7cdd1c208ff2c6447b53b8ec2ddec79e4ef38ebcd3c0e88f8b6a078",
+      "status": "success",
+      "explorer": "https://explorer.test.mezo.org/tx/0x4ce42eb5d7cdd1c208ff2c6447b53b8ec2ddec79e4ef38ebcd3c0e88f8b6a078"
+    },
+    {
+      "label": "admin: tighten Edge BTC params (LTV 70% / threshold 75%)",
+      "from": "0x7c298d22acc23c5931B3F1d6aB5D9f6Ded85B1b7",
+      "hash": "0x440823a9846e559783a9a18d93f67df1a1c689df53014659d2619a4be599038c",
+      "status": "success",
+      "explorer": "https://explorer.test.mezo.org/tx/0x440823a9846e559783a9a18d93f67df1a1c689df53014659d2619a4be599038c"
+    },
+    {
+      "label": "admin: restore Edge BTC params (LTV 78% / threshold 85%)",
+      "from": "0x7c298d22acc23c5931B3F1d6aB5D9f6Ded85B1b7",
+      "hash": "0xf9bc87fe731e8e8a6d4a50cebd26721b11bef0252ff54f24c7dd8baa35c57275",
+      "status": "success",
+      "explorer": "https://explorer.test.mezo.org/tx/0xf9bc87fe731e8e8a6d4a50cebd26721b11bef0252ff54f24c7dd8baa35c57275"
+    }
+  ],
+  "responsive": [
+    {
+      "size": "phone-360",
+      "route": "/",
+      "horizontalOverflowPx": 17
+    },
+    {
+      "size": "phone-360",
+      "route": "/dashboard",
+      "horizontalOverflowPx": 17
+    },
+    {
+      "size": "phone-360",
+      "route": "/lend",
+      "horizontalOverflowPx": 17
+    },
+    {
+      "size": "phone-360",
+      "route": "/borrow",
+      "horizontalOverflowPx": 17
+    },
+    {
+      "size": "phone-360",
+      "route": "/swap",
+      "horizontalOverflowPx": 17
+    },
+    {
+      "size": "phone-360",
+      "route": "/markets",
+      "horizontalOverflowPx": 17
+    },
+    {
+      "size": "phone-360",
+      "route": "/liquidations",
+      "horizontalOverflowPx": 17
+    },
+    {
+      "size": "phone-360",
+      "route": "/analytics",
+      "horizontalOverflowPx": 17
+    },
+    {
+      "size": "phone-360",
+      "route": "/docs",
+      "horizontalOverflowPx": 17
+    },
+    {
+      "size": "phone-414",
+      "route": "/",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/dashboard",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/lend",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/borrow",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/swap",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/markets",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/liquidations",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/analytics",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "phone-414",
+      "route": "/docs",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/dashboard",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/lend",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/borrow",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/swap",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/markets",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/liquidations",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/analytics",
+      "horizontalOverflowPx": 0
+    },
+    {
+      "size": "tablet-768",
+      "route": "/docs",
+      "horizontalOverflowPx": 0
+    }
+  ],
+  "consoleErrors": [],
+  "finishedAt": "2026-11-14T08:46:16.141Z",
+  "summary": "12/14 UI steps passed, 11 transactions confirmed on the explorer"
+}

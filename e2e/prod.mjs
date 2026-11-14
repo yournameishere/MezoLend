@@ -60,6 +60,7 @@ const walletOf = (account) => createWalletClient({ chain, transport, account });
 const log = { site: BASE, wallet: user.address, startedAt: new Date().toISOString(), steps: [], setup: [] };
 const save = () => writeFileSync(resolve(root, "deployments/e2e-prod-log.json"), JSON.stringify(log, null, 2) + "\n");
 let current = "setup";
+let authorized = false; // like a fresh MetaMask: no accounts exposed until the user approves the connection
 const sent = []; // { step, hash }
 
 // ───────────────────────── wallet bridge (runs in Node) ─────────────────────────
@@ -75,8 +76,10 @@ function toBigIntFields(types, primaryType, message) {
 async function handle(method, params) {
   switch (method) {
     case "eth_requestAccounts":
-    case "eth_accounts":
+      authorized = true;
       return [user.address];
+    case "eth_accounts":
+      return authorized ? [user.address] : [];
     case "eth_chainId":
       return "0x7b7b";
     case "net_version":
@@ -188,7 +191,9 @@ async function waitForSteps(page, timeout = 240_000) {
   throw new Error("timed out waiting for confirmation");
 }
 
+const ONLY = (process.env.ONLY || "").toLowerCase().split(",").filter(Boolean);
 async function step(name, page, fn) {
+  if (ONLY.length && !/^connect/i.test(name) && !ONLY.some((o) => name.toLowerCase().includes(o))) return;
   current = name;
   const before = sent.length;
   const t0 = Date.now();
@@ -299,7 +304,7 @@ async function main() {
 
   await step("connect wallet", page, async () => {
     await page.goto(`${BASE}/`, { waitUntil: "networkidle" });
-    await page.getByRole("button", { name: /Connect wallet/ }).first().click();
+    await page.getByRole("button", { name: /Connect wallet/ }).first().click({ timeout: 30_000 });
     await page.getByRole("button", { name: /MezoLend E2E Wallet/ }).click();
     await page.getByText(user.address.slice(0, 6), { exact: false }).first().waitFor({ timeout: 20_000 });
   });
@@ -384,6 +389,8 @@ async function main() {
   });
 
   // Liquidation: a near-max Edge loan from the victim wallet, then a temporary risk-parameter change.
+  const wantLiquidation = !ONLY.length || ONLY.some((o) => "liquidate".includes(o) || o.includes("liquid"));
+  if (wantLiquidation) {
   const vDebt = await pub.readContract({ address: d.edge.pool, abi: abi("LendingPool"), functionName: "borrowBalanceCurrent", args: [victim.address] });
   if (vDebt === 0n) {
     const price = await pub.readContract({ address: d.oracle, abi: abi("PriceOracle"), functionName: "getPrice", args: [d.btc] });
@@ -412,6 +419,7 @@ async function main() {
       address: d.edge.collateralManager, abi: CM, functionName: "configureAsset",
       args: [d.btc, true, false, parseEther("0.78"), parseEther("0.85"), parseEther("0.075"), parseEther("100")],
     });
+  }
   }
 
   await step("Close: repay the Core loan in full and withdraw all BTC (permit)", page, async () => {
