@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { usePublicClient } from "wagmi";
-import { erc20Abi, type Abi, type Address } from "viem";
+import { useSearchParams } from "next/navigation";
+import type { Abi, Address } from "viem";
 import { useSelectedMarket, useUserOverview, type MarketInfo, type UserMarket } from "@/hooks/useProtocol";
-import { useTx, type TxStep } from "@/hooks/useTx";
+import { NO_PERMIT, useTx, type PermitArg, type TxStep } from "@/hooks/useTx";
 import { MarketPicker, PageHeader, Panel, Stat } from "@/components/market/PageHeader";
 import { Badge, Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { AlertTriangle } from "lucide-react";
@@ -16,11 +16,11 @@ import { Delta, Num, Row, Segmented, Skeleton } from "@/components/ui/Primitives
 import { Steps } from "@/components/ui/Steps";
 import { Term } from "@/components/ui/Term";
 import { ConnectPrompt, useMounted } from "@/components/shell/Wallet";
-import { HealthBar, HealthNumber, PriceRunway } from "@/components/viz/Thermal";
+import { HealthNumber, PriceRunway } from "@/components/viz/Thermal";
+import { LoanMeter } from "@/components/viz/LoanMeter";
 import { borrowManagerAbi, BTC, FAUCET, GAS_RESERVE, lendingPoolAbi, MUSD } from "@/config/contracts";
 import { MAX_UINT, fmtAmount, fmtHF, fmtNum, fmtPct, fmtUsd, parseAmount, toNum } from "@/lib/format";
 import { liquidationPrice, maxBorrow, riskBand, riskCopy, simulate, type CollateralParams } from "@/lib/math";
-import { chain } from "@/lib/wagmi";
 
 type Tab = "borrow" | "repay" | "collateral" | "close";
 
@@ -48,10 +48,24 @@ export function BorrowView() {
   const interest = um && um.debt > um.borrowPrincipal ? um.debt - um.borrowPrincipal : 0n;
   const used = pos.borrowCapacity > 0n ? toNum(pos.debt) / toNum(pos.borrowCapacity) : 0;
 
-  const [projection, setProjection] = useState<{ hf?: bigint; liq?: number }>({});
+  const [projection, setProjection] = useState<Projection>({});
+  const { select } = useSelectedMarket();
+  // Prefill from the home page calculator: /borrow?market=0&btc=0.05&musd=1200
+  const params = useSearchParams();
+  const prefill = useMemo(() => {
+    const ok = (x: string) => /^\d*\.?\d*$/.test(x);
+    const b = params.get("btc") ?? "";
+    const d = params.get("musd") ?? "";
+    return b || d ? { btc: ok(b) ? b : "", musd: ok(d) ? d : "", k: `${b}|${d}` } : undefined;
+  }, [params]);
+  const marketParam = params.get("market");
+  useEffect(() => {
+    if (marketParam !== null && /^\d+$/.test(marketParam)) select(Number(marketParam));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [marketParam]);
 
   return (
-    <div className="mx-auto max-w-[1240px] px-4 sm:px-6">
+    <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
       <PageHeader
         title="Borrow MUSD"
         intro="Post BTC as collateral and borrow MUSD from lenders, without selling your bitcoin. Keep the health factor above 1.0 and your BTC stays yours."
@@ -97,9 +111,17 @@ export function BorrowView() {
                   </Stat>
                 </div>
               </div>
-              <div className="mt-6">
-                <HealthBar hf={um && um.debt > 0n ? um.healthFactor : undefined} projected={projection.hf} />
-              </div>
+              {k && btc && (
+                <LoanMeter
+                  className="mt-6"
+                  collateralUsd={projection.coll ?? toNum(pos.collateralValue)}
+                  debtUsd={toNum(pos.debt)}
+                  nextDebtUsd={projection.debt}
+                  ltv={toNum(btc.ltv)}
+                  lt={toNum(btc.liquidationThreshold)}
+                  size="lg"
+                />
+              )}
               {um && um.debt > 0n && (
                 <p className="mt-4 text-[13.5px] text-mute">
                   You&apos;re using <span className="t-num font-semibold text-ink">{(used * 100).toFixed(1)}%</span> of your borrowing limit (
@@ -116,7 +138,7 @@ export function BorrowView() {
             </CardBody>
           </Card>
 
-          {um && um.debt > 0n && k && <Simulator um={um} price={k.btcPrice} />}
+          {um && um.debt > 0n && k && <Simulator um={um} price={k.btcPrice} ltv={k.ltv} lt={k.lt} />}
 
           <Card>
             <CardHeader title={`${market?.name ?? ""} market terms`} />
@@ -154,7 +176,17 @@ export function BorrowView() {
                 {!market || !cparams ? (
                   <Skeleton className="h-60 w-full" />
                 ) : tab === "borrow" ? (
-                  <BorrowForm market={market} um={um} cparams={cparams} native={user?.nativeBalance ?? 0n} connected={connected} account={account} onProject={setProjection} />
+                  <BorrowForm
+                    key={prefill?.k}
+                    initial={prefill}
+                    market={market}
+                    um={um}
+                    cparams={cparams}
+                    native={user?.nativeBalance ?? 0n}
+                    connected={connected}
+                    account={account}
+                    onProject={setProjection}
+                  />
                 ) : tab === "repay" ? (
                   <RepayForm market={market} um={um} cparams={cparams} musd={user?.musdBalance ?? 0n} connected={connected} account={account} onProject={setProjection} />
                 ) : tab === "collateral" ? (
@@ -165,6 +197,15 @@ export function BorrowView() {
               </div>
             </div>
           </Panel>
+          {tab === "repay" && (
+            <p className="mt-3 text-[13.5px] text-mute">
+              Short on MUSD?{" "}
+              <Link href="/swap" className="font-semibold text-tang-deep underline decoration-tang-line underline-offset-2">
+                Repay with BTC or MEZO
+              </Link>{" "}
+              through Mezo Pools in one transaction.
+            </p>
+          )}
           {connected && user && user.nativeBalance < GAS_RESERVE * 5n && (
             <p className="mt-3 text-[13px] text-mute">
               Low on testnet BTC?{" "}
@@ -182,12 +223,21 @@ export function BorrowView() {
 
 // ───────────────────────── forms ─────────────────────────
 
+/** What the pending action would do, for the health card: health, liquidation price, and meter values (USD). */
+type Projection = { hf?: bigint; liq?: number; coll?: number; debt?: number };
+const projectionOf = (s: { healthFactor: bigint; debt: bigint; collateralValue: bigint }, liq: number): Projection => ({
+  hf: s.debt > 0n ? s.healthFactor : undefined,
+  liq,
+  coll: toNum(s.collateralValue),
+  debt: toNum(s.debt),
+});
+
 type FormProps = {
   market: MarketInfo;
   um?: UserMarket;
   cparams: CollateralParams;
   connected: boolean;
-  onProject: (p: { hf?: bigint; liq?: number }) => void;
+  onProject: (p: Projection) => void;
 };
 
 const posOf = (um?: UserMarket) => ({
@@ -255,10 +305,11 @@ function BorrowForm({
   connected,
   account,
   onProject,
-}: FormProps & { native: bigint; account?: Address }) {
+  initial,
+}: FormProps & { native: bigint; account?: Address; initial?: { btc: string; musd: string } }) {
   const tx = useTx();
-  const [collStr, setCollStr] = useState("");
-  const [borrowStr, setBorrowStr] = useState("");
+  const [collStr, setCollStr] = useState(initial?.btc ?? "");
+  const [borrowStr, setBorrowStr] = useState(initial?.musd ?? "");
   const coll = parseAmount(collStr) ?? 0n;
   const amt = parseAmount(borrowStr) ?? 0n;
   const maxColl = native > GAS_RESERVE ? native - GAS_RESERVE : 0n;
@@ -277,8 +328,13 @@ function BorrowForm({
   const project = (c: bigint, b: bigint) => {
     const s = simulate(posOf(um), cparams, { collateralDelta: c, borrow: b, originationFee: market.originationFee });
     const bal = (um?.collaterals[0]?.balance ?? 0n) + c;
-    onProject({ hf: s.debt > 0n ? s.healthFactor : undefined, liq: toNum(liquidationPrice(s.debt, bal, cparams)) });
+    onProject(projectionOf(s, toNum(liquidationPrice(s.debt, bal, cparams))));
   };
+  // Show a prefilled loan on the meter straight away.
+  useEffect(() => {
+    if (initial && (coll > 0n || amt > 0n)) project(coll, amt);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const steps: TxStep[] = useMemo(() => {
     if (coll > 0n && amt > 0n)
@@ -401,7 +457,6 @@ function RepayForm({
   onProject,
 }: FormProps & { musd: bigint; account?: Address }) {
   const tx = useTx();
-  const publicClient = usePublicClient({ chainId: chain.id });
   const [str, setStr] = useState("");
   const amt = parseAmount(str) ?? 0n;
   const debt = um?.debt ?? 0n;
@@ -413,35 +468,26 @@ function RepayForm({
   if (amt > musd) error = "Your wallet doesn't hold that much MUSD.";
   else if (amt > debt + debt / 100n + 1n) error = "That's more than you owe.";
 
-  const approveAmount = full ? debt + debt / 500n + 10n ** 15n : amt;
-  const steps: TxStep[] = useMemo(
-    () => [
-      {
-        key: "approve",
-        label: "Approve MUSD",
-        address: MUSD,
-        abi: erc20Abi as Abi,
-        functionName: "approve",
-        args: [market.pool, approveAmount],
-        done: { title: "MUSD approved" },
-        skip: async () =>
-          (await publicClient!.readContract({ address: MUSD, abi: erc20Abi, functionName: "allowance", args: [account!, market.pool] })) >=
-          approveAmount,
-      },
+  // Interest accrues until the transaction lands, so a full repayment signs a little headroom (capped at the wallet).
+  const permitValue = full ? min(debt + debt / 500n + 10n ** 15n, musd) : amt;
+  const steps: TxStep[] = useMemo(() => {
+    const build = (p: PermitArg) => [account, full ? MAX_UINT : amt, p] as const;
+    return [
       {
         key: "repay",
         label: full ? "Repay the full loan" : `Repay ${fmtAmount(amt)} MUSD`,
         address: market.pool,
         abi: lendingPoolAbi as Abi,
-        functionName: "repay",
-        args: [account, full ? MAX_UINT : amt],
+        functionName: "repayWithPermit",
+        args: build(NO_PERMIT),
+        permit: { token: MUSD, spender: market.pool, value: permitValue, buildArgs: build },
+        gasFloor: 300_000n,
         done: full
           ? { title: "Loan repaid in full", body: `Your ${market.name} debt is cleared. You can now withdraw your BTC.` }
           : { title: `Repaid ${fmtAmount(amt)} MUSD`, body: `${market.name} loan updated.` },
       },
-    ],
-    [market, approveAmount, full, amt, account, publicClient],
-  );
+    ];
+  }, [market, permitValue, full, amt, account]);
 
   if (connected && debt === 0n) {
     return <p className="py-6 text-center text-[14px] text-mute">You don&apos;t owe anything in this market.</p>;
@@ -457,7 +503,7 @@ function RepayForm({
           tx.reset();
           const a = parseAmount(v) ?? 0n;
           const s = simulate(posOf(um), cparams, { repay: a, originationFee: market.originationFee });
-          onProject({ hf: s.debt > 0n ? s.healthFactor : undefined, liq: toNum(liquidationPrice(s.debt, um?.collaterals[0]?.balance ?? 0n, cparams)) });
+          onProject(projectionOf(s, toNum(liquidationPrice(s.debt, um?.collaterals[0]?.balance ?? 0n, cparams))));
         }}
         symbol="MUSD"
         max={connected ? max : undefined}
@@ -468,7 +514,7 @@ function RepayForm({
       />
       <ProjectionRows um={um} sim={sim} liq={liq} cparams={cparams} />
       {musd < debt && connected && (
-        <p className="mt-3 text-[12.5px] text-faint">
+        <p className="mt-3 text-[12.5px] text-mute">
           You hold {fmtAmount(musd, 18, { max: 4 })} MUSD, less than the {fmtAmount(debt, 18, { max: 4 })} owed. You can repay part now.
         </p>
       )}
@@ -565,7 +611,7 @@ function CollateralForm({ market, um, cparams, native, connected, onProject }: F
             const a = parseAmount(v) ?? 0n;
             const s = simulate(posOf(um), cparams, { collateralDelta: dir === "add" ? a : -a, originationFee: market.originationFee });
             const b = bal + (dir === "add" ? a : -a);
-            onProject({ hf: s.debt > 0n ? s.healthFactor : undefined, liq: toNum(liquidationPrice(s.debt, b > 0n ? b : 0n, cparams)) });
+            onProject(projectionOf(s, toNum(liquidationPrice(s.debt, b > 0n ? b : 0n, cparams))));
           }}
           symbol="BTC"
           max={connected ? max : undefined}
@@ -602,12 +648,11 @@ function CollateralForm({ market, um, cparams, native, connected, onProject }: F
   );
 }
 
-function CloseForm({ market, um, musd, connected, account }: { market: MarketInfo; um?: UserMarket; musd: bigint; connected: boolean; account?: Address }) {
+function CloseForm({ market, um, musd, connected }: { market: MarketInfo; um?: UserMarket; musd: bigint; connected: boolean; account?: Address }) {
   const tx = useTx();
-  const publicClient = usePublicClient({ chainId: chain.id });
   const debt = um?.debt ?? 0n;
   const bal = um?.collaterals[0]?.balance ?? 0n;
-  const approveAmount = debt + debt / 500n + 10n ** 15n;
+  const permitValue = min(debt + debt / 500n + 10n ** 15n, musd);
   const short = debt > musd;
 
   const steps: TxStep[] = useMemo(() => {
@@ -623,30 +668,21 @@ function CloseForm({ market, um, musd, connected, account }: { market: MarketInf
           done: { title: `Withdrew ${fmtAmount(bal)} BTC`, body: `Your ${market.name} position is closed.` },
         },
       ];
+    const build = (p: PermitArg) => [MAX_UINT, BTC, MAX_UINT, p] as const;
     return [
-      {
-        key: "approve",
-        label: "Approve MUSD",
-        address: MUSD,
-        abi: erc20Abi as Abi,
-        functionName: "approve",
-        args: [market.pool, approveAmount],
-        done: { title: "MUSD approved" },
-        skip: async () =>
-          (await publicClient!.readContract({ address: MUSD, abi: erc20Abi, functionName: "allowance", args: [account!, market.pool] })) >=
-          approveAmount,
-      },
       {
         key: "close",
         label: "Repay everything and withdraw all BTC",
         address: market.borrowManager,
         abi: borrowManagerAbi as Abi,
-        functionName: "repayAndWithdraw",
-        args: [MAX_UINT, BTC, MAX_UINT],
+        functionName: "repayAndWithdrawWithPermit",
+        args: build(NO_PERMIT),
+        permit: { token: MUSD, spender: market.pool, value: permitValue, buildArgs: build },
+        gasFloor: 450_000n,
         done: { title: "Position closed", body: `Repaid ${fmtAmount(debt, 18, { max: 4 })} MUSD and withdrew ${fmtAmount(bal)} BTC.` },
       },
     ];
-  }, [debt, bal, market, approveAmount, account, publicClient]);
+  }, [debt, bal, market, permitValue]);
 
   if (connected && debt === 0n && bal === 0n) {
     return (
@@ -687,7 +723,7 @@ function CloseForm({ market, um, musd, connected, account }: { market: MarketInf
   );
 }
 
-function Simulator({ um, price }: { um: UserMarket; price: number }) {
+function Simulator({ um, price, ltv, lt }: { um: UserMarket; price: number; ltv: number; lt: number }) {
   const [move, setMove] = useState(-20);
   const hf = toNum(um.healthFactor) * (1 + move / 100);
   const hfBig = BigInt(Math.max(0, Math.round(hf * 1e6))) * 10n ** 12n;
@@ -705,7 +741,7 @@ function Simulator({ um, price }: { um: UserMarket; price: number }) {
             </span>
           </span>
           <input type="range" className="thermal mt-1 w-full" min={-60} max={60} value={move} onChange={(e) => setMove(Number(e.target.value))} aria-label="BTC price change" />
-          <HealthBar hf={hfBig} compact />
+          <LoanMeter className="mt-2" collateralUsd={toNum(um.collateralValue) * (1 + move / 100)} debtUsd={toNum(um.debt)} ltv={ltv} lt={lt} />
         </label>
         <div className="text-right">
           <p className="text-[12.5px] text-mute">Health factor would be</p>
@@ -722,3 +758,5 @@ function Simulator({ um, price }: { um: UserMarket; price: number }) {
     </Card>
   );
 }
+
+const min = (a: bigint, b: bigint) => (a < b ? a : b);
