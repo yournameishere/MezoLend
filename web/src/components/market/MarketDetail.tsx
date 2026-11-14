@@ -27,21 +27,21 @@ export function MarketDetail({ id }: { id: number }) {
   const rateSeries = useMemo(() => {
     const s = snaps.data ?? [];
     return [
-      { name: "Borrow APY", color: "#17130f", points: s.map((x) => ({ t: x.ts, v: aprToApy(x.borrowApr) })) },
-      { name: "Supply APY", color: "#ff9a3c", area: true, points: s.map((x) => ({ t: x.ts, v: aprToApy(x.supplyApr) })) },
+      { name: "Borrowers pay", color: "#2a1c10", points: s.map((x) => ({ t: x.ts, v: aprToApy(x.borrowApr) })) },
+      { name: "Lenders earn", color: "#f7931a", area: true, points: s.map((x) => ({ t: x.ts, v: aprToApy(x.supplyApr) })) },
     ];
   }, [snaps.data]);
   const sizeSeries = useMemo(() => {
     const s = snaps.data ?? [];
     return [
-      { name: "Supplied", color: "#ff9a3c", area: true, points: s.map((x) => ({ t: x.ts, v: x.totalAssets })) },
-      { name: "Borrowed", color: "#17130f", points: s.map((x) => ({ t: x.ts, v: x.totalBorrows })) },
+      { name: "Supplied", color: "#f7931a", area: true, points: s.map((x) => ({ t: x.ts, v: x.totalAssets })) },
+      { name: "Borrowed", color: "#2a1c10", points: s.map((x) => ({ t: x.ts, v: x.totalBorrows })) },
     ];
   }, [snaps.data]);
 
   if (!isLoading && markets && !m) {
     return (
-      <div className="mx-auto max-w-[1240px] px-4 py-16 sm:px-6">
+      <div className="mx-auto max-w-[1200px] px-4 py-16 sm:px-6">
         <Card>
           <EmptyState
             title="This market doesn't exist"
@@ -61,7 +61,7 @@ export function MarketDetail({ id }: { id: number }) {
   const paused = m && (m.poolPaused || m.borrowPaused || m.liquidationPaused);
 
   return (
-    <div className="mx-auto max-w-[1240px] px-4 sm:px-6">
+    <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
       <div className="pt-8">
         <Link href="/markets" className="inline-flex items-center gap-1 text-[13.5px] text-mute hover:text-ink">
           <ChevronLeft size={16} /> All markets

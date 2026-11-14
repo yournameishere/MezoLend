@@ -117,9 +117,9 @@ export function RateCurve({ series, height = H }: { series: CurveSeries[]; heigh
         })}
         {hv !== null && (
           <g pointerEvents="none">
-            <line x1={x(hv)} x2={x(hv)} y1={PAD.t} y2={height - PAD.b} stroke="#1f1a15" strokeOpacity="0.25" />
+            <line x1={x(hv)} x2={x(hv)} y1={PAD.t} y2={height - PAD.b} stroke="#2a1c10" strokeOpacity="0.25" />
             {series.map((s) => (
-              <circle key={s.name} cx={x(hv)} cy={y(aprToApy(borrowAprAt(hv, s.params)))} r="3.5" fill="#1f1a15" />
+              <circle key={s.name} cx={x(hv)} cy={y(aprToApy(borrowAprAt(hv, s.params)))} r="3.5" fill="#2a1c10" />
             ))}
           </g>
         )}

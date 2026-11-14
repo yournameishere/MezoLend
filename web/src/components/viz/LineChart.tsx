@@ -106,7 +106,7 @@ export function LineChart({
             </g>
           );
         })}
-        {hover !== null && <line x1={x(hover)} x2={x(hover)} y1={PAD.t} y2={height - PAD.b} stroke="#1f1a15" strokeOpacity="0.25" />}
+        {hover !== null && <line x1={x(hover)} x2={x(hover)} y1={PAD.t} y2={height - PAD.b} stroke="#2a1c10" strokeOpacity="0.25" />}
       </svg>
       {hover !== null && (
         <div className="pointer-events-none absolute top-2 left-16 rounded-[10px] border border-line bg-paper/90 px-3 py-2 text-[12.5px] backdrop-blur">

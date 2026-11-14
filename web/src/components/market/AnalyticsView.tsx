@@ -56,7 +56,7 @@ export function AnalyticsView() {
   const loading = accounts.isPending && !!markets?.length;
 
   return (
-    <div className="mx-auto max-w-[1240px] px-4 sm:px-6">
+    <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
       <PageHeader title="Analytics" intro="Protocol-wide numbers, borrower health and a BTC price stress test, all computed live from the contracts." />
 
       <StatGrid cols={6}>
@@ -118,7 +118,7 @@ function HealthHistogram({ loans }: { loans: Pos[] }) {
           <span className="t-num mb-1 text-[12px] text-mute">{d.count ? fmtNum(d.debt, 1) : ""}</span>
           <div
             className="w-full rounded-t-[6px] transition-[height] duration-700"
-            style={{ height: `${(d.debt / max) * 76 + (d.count ? 4 : 1)}%`, background: d.count ? heatColor(heat(Math.min(d.lo + 0.01, 3))) : "#ece6df" }}
+            style={{ height: `${(d.debt / max) * 76 + (d.count ? 4 : 1)}%`, background: d.count ? heatColor(heat(Math.min(d.lo + 0.01, 3))) : "#efe3d6" }}
           />
           <span className="mt-2 text-[12px] font-medium">{d.label}</span>
           <span className="text-[11.5px] text-faint">
@@ -197,8 +197,8 @@ function MarketCharts({ m }: { m: MarketInfo }) {
             <LineChart
               format={(v) => fmtNum(v, 0)}
               series={[
-                { name: "Supplied", color: "#ff9a3c", area: true, points: s.map((x) => ({ t: x.ts, v: x.totalAssets })) },
-                { name: "Borrowed", color: "#17130f", points: s.map((x) => ({ t: x.ts, v: x.totalBorrows })) },
+                { name: "Supplied", color: "#f7931a", area: true, points: s.map((x) => ({ t: x.ts, v: x.totalAssets })) },
+                { name: "Borrowed", color: "#2a1c10", points: s.map((x) => ({ t: x.ts, v: x.totalBorrows })) },
               ]}
             />
           )}
@@ -221,9 +221,9 @@ function MarketCharts({ m }: { m: MarketInfo }) {
             <LineChart
               format={(v) => `${(v * 100).toFixed(0)}%`}
               series={[
-                { name: "Utilization", color: "#9a8f86", points: s.map((x) => ({ t: x.ts, v: x.utilization })) },
-                { name: "Borrow APY", color: "#17130f", dashed: true, points: s.map((x) => ({ t: x.ts, v: aprToApy(x.borrowApr) })) },
-                { name: "Supply APY", color: "#ff9a3c", area: true, points: s.map((x) => ({ t: x.ts, v: aprToApy(x.supplyApr) })) },
+                { name: "Utilization", color: "#8f7c6c", points: s.map((x) => ({ t: x.ts, v: x.utilization })) },
+                { name: "Borrowers pay", color: "#2a1c10", dashed: true, points: s.map((x) => ({ t: x.ts, v: aprToApy(x.borrowApr) })) },
+                { name: "Lenders earn", color: "#f7931a", area: true, points: s.map((x) => ({ t: x.ts, v: aprToApy(x.supplyApr) })) },
               ]}
             />
           )}

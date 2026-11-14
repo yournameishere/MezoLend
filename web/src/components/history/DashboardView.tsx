@@ -30,7 +30,7 @@ export function DashboardView() {
 
   if (!mounted || !account) {
     return (
-      <div className="mx-auto max-w-[1240px] px-4 sm:px-6">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         <PageHeader title="Dashboard" intro="Your supplies, loans and full on-chain history across MezoLend markets." />
         <Card>
           <EmptyState title="Connect a wallet to see your dashboard" action={<div className="w-56"><ConnectPrompt /></div>}>
@@ -55,7 +55,7 @@ export function DashboardView() {
   const lowestHf = loans.filter((r) => r.um.debt > 0n).reduce<bigint | undefined>((a, r) => (a === undefined || r.um.healthFactor < a ? r.um.healthFactor : a), undefined);
 
   return (
-    <div className="mx-auto max-w-[1240px] px-4 sm:px-6">
+    <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
       <PageHeader title="Dashboard" intro="Your supplies, loans and full on-chain history across MezoLend markets.">
         <div className="flex items-center gap-2.5 rounded-[12px] border border-line bg-paper px-3 py-2">
           <Avatar address={account} size={28} />

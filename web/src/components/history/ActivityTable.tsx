@@ -84,7 +84,7 @@ export function ActivityTable({ items, loading, error }: { items?: Activity[]; l
             const seized = a.extra?.startsWith("seized:") ? BigInt(a.extra.slice(7)) : undefined;
             const fee = a.extra?.startsWith("fee:") ? BigInt(a.extra.slice(4)) : undefined;
             return (
-              <tr key={a.id} className="transition-colors hover:bg-[#fffaf5]">
+              <tr key={a.id} className="transition-colors hover:bg-wash">
                 <Td>
                   <span className="flex items-center gap-3">
                     <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${c.tone}`}>

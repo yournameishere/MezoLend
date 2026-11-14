@@ -51,7 +51,7 @@ export function NoticeBell() {
                 <button
                   key={t}
                   onClick={() => setTab(t)}
-                  className={`rounded-md px-3 py-1.5 text-[13px] font-semibold ${tab === t ? "bg-[#f3efea] text-ink" : "text-mute hover:text-ink"}`}
+                  className={`rounded-md px-3 py-1.5 text-[13px] font-semibold ${tab === t ? "bg-tang-soft text-ink" : "text-mute hover:text-ink"}`}
                 >
                   {t === "feed" ? "Notifications" : "Alert settings"}
                 </button>
@@ -118,7 +118,7 @@ export function NoticeBell() {
                     type="checkbox"
                     checked={settings.browserAlerts}
                     onChange={(e) => (e.target.checked ? askBrowser() : setSettings({ browserAlerts: false }))}
-                    className="h-4 w-4 accent-[#ff9a3c]"
+                    className="h-4 w-4 accent-[#f7931a]"
                   />
                 </label>
               </div>

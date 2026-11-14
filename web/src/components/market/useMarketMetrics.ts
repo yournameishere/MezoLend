@@ -38,4 +38,4 @@ export function rateParams(m: MarketInfo): RateParams {
   };
 }
 
-export const marketColor = (id: number) => (id === 0 ? "#ff9a3c" : "#1f1a15");
+export const marketColor = (id: number) => (id === 0 ? "#f7931a" : "#2a1c10");

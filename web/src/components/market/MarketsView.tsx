@@ -39,7 +39,7 @@ export function MarketsView() {
   ];
 
   return (
-    <div className="mx-auto max-w-[1240px] px-4 sm:px-6">
+    <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
       <PageHeader
         title="Markets"
         intro="Each market is a separate MUSD pool with its own collateral rules and rate curve, so a problem in one can't spill into another."

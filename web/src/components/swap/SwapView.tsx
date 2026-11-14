@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { useBalance, useReadContract } from "wagmi";
 import { erc20Abi, type Abi, type Address } from "viem";
 import { useMarkets, useUserOverview } from "@/hooks/useProtocol";
@@ -28,7 +28,7 @@ export function SwapView() {
   const tx = useTx();
 
   const [token, setToken] = useState<Token>("BTC");
-  const [then, setThen] = useState<Then>("keep");
+  const [choice, setThen] = useState<Then>("keep");
   const [marketId, setMarketId] = useState(0);
   const [value, setValue] = useState("");
   const [slippage, setSlippage] = useState(0.01);
@@ -74,9 +74,7 @@ export function SwapView() {
   const oraclePrice = market ? metrics(market).btcPrice : 0;
   const drift = token === "BTC" && rate && oraclePrice ? rate / oraclePrice - 1 : 0;
 
-  useEffect(() => {
-    if (then === "repay" && debt === 0n) setThen("keep");
-  }, [then, debt]);
+  const then: Then = choice === "repay" && debt === 0n ? "keep" : choice;
 
   const error =
     amount > 0n && max !== undefined && amount > max
@@ -87,7 +85,7 @@ export function SwapView() {
         ? "Mezo Pools couldn't quote this swap. Try a smaller amount."
         : undefined;
 
-  const steps: TxStep[] = useMemo(() => {
+  const buildSteps = (): TxStep[] => {
     if (!account || amount === 0n || !market) return [];
     const deadline = BigInt(Math.floor(Date.now() / 1000) + 20 * 60);
     const isBtc = token === "BTC";
@@ -126,10 +124,10 @@ export function SwapView() {
         done,
       },
     ];
-  }, [account, amount, market, token, then, tokenAddr, minOut, out]);
+  };
 
   const submit = async () => {
-    if (await tx.run(steps)) setValue("");
+    if (await tx.run(buildSteps())) setValue("");
   };
 
   const cta =

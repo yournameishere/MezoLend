@@ -16,10 +16,11 @@ export async function fetchMarketsSnapshot() {
         fetchOptions: { next: { revalidate: 30 } } as RequestInit,
       }),
     });
-    return await client.readContract({ address: LENS, abi: mezoLendLensAbi, functionName: "getMarkets" });
+    const markets = await client.readContract({ address: LENS, abi: mezoLendLensAbi, functionName: "getMarkets" });
+    return { markets, at: Date.now() };
   } catch {
-    return undefined;
+    return { markets: undefined, at: 0 };
   }
 }
 
-export type MarketsSnapshot = Awaited<ReturnType<typeof fetchMarketsSnapshot>>;
+export type MarketsSnapshot = Awaited<ReturnType<typeof fetchMarketsSnapshot>>["markets"];

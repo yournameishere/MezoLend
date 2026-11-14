@@ -32,7 +32,7 @@ export function HealthBar({
           className="absolute inset-0 rounded-full"
           style={{
             background:
-              "linear-gradient(90deg, #d7383f 0%, #d7383f 9%, #f08a24 24%, #f6c96b 42%, #9fd18a 62%, #23885b 82%, #23885b 100%)",
+              "linear-gradient(90deg, #c0362c 0%, #c0362c 9%, #f08a24 24%, #f6c96b 42%, #9fd18a 62%, #23885b 82%, #23885b 100%)",
           }}
         />
         <div className="absolute inset-y-[-3px] w-px bg-paper" style={{ left: `${liqAt}%` }} aria-hidden />
@@ -92,7 +92,7 @@ export function PriceRunway({ price, liqPrice, projectedLiq }: { price: number; 
             style={{
               left: `${scale(liqPrice)}%`,
               width: `${scale(price) - scale(liqPrice)}%`,
-              background: `linear-gradient(90deg, #d7383f, ${heatColor(h * 0.6)})`,
+              background: `linear-gradient(90deg, #c0362c, ${heatColor(h * 0.6)})`,
             }}
           />
         )}
@@ -139,7 +139,7 @@ export function UtilBar({ u, className = "" }: { u: number; className?: string }
         className="h-full rounded-full transition-[width] duration-700"
         style={{
           width: `${Math.min(100, u * 100)}%`,
-          background: u > 0.9 ? "#d7383f" : u > 0.8 ? "#c46a00" : "#ff9a3c",
+          background: u > 0.9 ? "#c0362c" : u > 0.8 ? "#a15c00" : "#f7931a",
         }}
       />
     </div>

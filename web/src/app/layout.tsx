@@ -39,11 +39,10 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const seed = await fetchMarketsSnapshot();
-  const seedAt = Date.now();
   return (
     <html lang="en" className={`${schibsted.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        <Providers seed={seed} seedAt={seedAt}>
+        <Providers seed={seed.markets} seedAt={seed.at}>
           <a
             href="#main"
             className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[80] focus:rounded-md focus:bg-ink focus:px-3 focus:py-2 focus:text-paper"
