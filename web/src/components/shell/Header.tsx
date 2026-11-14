@@ -12,11 +12,11 @@ import { chain } from "@/lib/wagmi";
 
 const nav = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/supply", label: "Supply" },
+  { href: "/lend", label: "Lend" },
   { href: "/borrow", label: "Borrow" },
+  { href: "/swap", label: "Get MUSD" },
   { href: "/markets", label: "Markets" },
-  { href: "/liquidations", label: "Liquidations" },
-  { href: "/analytics", label: "Analytics" },
+  { href: "/liquidations", label: "Liquidate" },
   { href: "/docs", label: "Docs" },
 ];
 
@@ -43,7 +43,7 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-paper/90 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-line bg-paper">
       <div className="mx-auto flex h-16 max-w-[1240px] items-center gap-3 px-4 sm:gap-5 sm:px-6">
         <Link href="/" className="shrink-0" aria-label="MezoLend home">
           <Wordmark />
@@ -54,7 +54,7 @@ export function Header() {
               key={n.href}
               href={n.href}
               aria-current={isActive(n.href) ? "page" : undefined}
-              className={`rounded-lg px-3 py-1.5 text-[14px] font-medium transition-colors ${isActive(n.href) ? "bg-[#f3efea] text-ink" : "text-mute hover:text-ink"}`}
+              className={`relative px-3 py-2 text-[14px] font-semibold transition-colors ${isActive(n.href) ? "text-ink after:absolute after:inset-x-3 after:-bottom-[13px] after:h-[3px] after:rounded-t-sm after:bg-tang" : "text-mute hover:text-ink"}`}
             >
               {n.label}
             </Link>
@@ -83,7 +83,7 @@ export function Header() {
                 <Link
                   href={n.href}
                   onClick={() => setOpen(false)}
-                  className={`block rounded-lg px-3 py-2.5 text-[14px] font-medium ${isActive(n.href) ? "bg-[#f3efea] text-ink" : "text-mute"}`}
+                  className={`block rounded-[var(--radius-ctl)] px-3 py-2.5 text-[15px] font-semibold ${isActive(n.href) ? "bg-tang-soft text-ink" : "text-mute"}`}
                 >
                   {n.label}
                 </Link>

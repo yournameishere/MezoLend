@@ -1,39 +1,41 @@
 @import "tailwindcss";
 
 /* ───────────────────────── Tokens ─────────────────────────
-   White paper and warm neutrals. Light orange marks the brand and the lending side, ink marks borrowing.
-   Green, amber and red only ever encode loan health. */
+   MezoLend is bitcoin-backed dollars, so the palette is bitcoin's: white paper, Bitcoin orange (#F7931A) for
+   BTC, the brand and money moving in, apricot for highlighted surfaces, and espresso ink for text and debt.
+   Green, amber and red only ever encode loan health. Surfaces carry no shadows; hierarchy comes from borders. */
 @theme {
   --color-paper: #ffffff;
-  --color-wash: #faf8f5;
+  --color-wash: #fff8f1;
   --color-card: #ffffff;
-  --color-line: #ece6df;
-  --color-line-2: #dcd2c8;
-  --color-ink: #17130f;
-  --color-mute: #5f5650;
-  --color-faint: #9a8f86;
+  --color-line: #efe3d6;
+  --color-line-2: #dfcdba;
+  --color-ink: #2a1c10;
+  --color-mute: #6b5a4c;
+  --color-faint: #8f7c6c;
 
-  --color-tang: #ff9a3c;
-  --color-tang-soft: #fff1e3;
-  --color-tang-line: #ffd9b5;
-  --color-tang-deep: #b8530a;
-  --color-char: #17130f;
+  --color-tang: #f7931a;
+  --color-tang-hover: #ffa53d;
+  --color-tang-soft: #fff0e0;
+  --color-tang-line: #ffd6ad;
+  --color-tang-deep: #b04a00;
+  --color-char: #2a1c10;
 
-  --color-safe: #1f8a5b;
-  --color-safe-soft: #e8f5ee;
-  --color-warn: #b86200;
-  --color-warn-soft: #fff4e0;
-  --color-danger: #d23a41;
-  --color-danger-soft: #fdeeee;
+  --color-safe: #18794e;
+  --color-safe-soft: #e7f4ec;
+  --color-warn: #a15c00;
+  --color-warn-soft: #fff3dc;
+  --color-danger: #c0362c;
+  --color-danger-soft: #fcecea;
 
-  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jbm), ui-monospace, monospace;
+  --font-sans: var(--font-schibsted), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-schibsted), ui-sans-serif, system-ui, sans-serif;
 
-  --radius-panel: 14px;
-  --radius-ctl: 9px;
+  --radius-panel: 12px;
+  --radius-ctl: 8px;
 
-  --shadow-card: 0 1px 2px rgba(23, 19, 15, 0.04), 0 1px 1px rgba(23, 19, 15, 0.02);
-  --shadow-pop: 0 12px 32px -12px rgba(23, 19, 15, 0.18), 0 2px 6px rgba(23, 19, 15, 0.06);
+  --shadow-card: none;
+  --shadow-pop: 0 14px 34px -14px rgba(42, 28, 16, 0.22), 0 2px 6px rgba(42, 28, 16, 0.06);
 
   --animate-rise: rise 0.5s cubic-bezier(0.2, 0.7, 0.1, 1) both;
   --animate-pulse-dot: pulse-dot 2.4s ease-in-out infinite;
@@ -75,7 +77,6 @@ body {
   font-family: var(--font-sans);
   font-size: 15px;
   line-height: 1.55;
-  font-feature-settings: "tnum";
   -webkit-font-smoothing: antialiased;
 }
 
@@ -86,22 +87,28 @@ body {
 
 /* ───────────────────────── Type ───────────────────────── */
 .t-display {
-  font-weight: 650;
-  letter-spacing: -0.032em;
-  line-height: 1.04;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
 }
 .t-title {
-  font-weight: 650;
-  letter-spacing: -0.022em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   line-height: 1.15;
 }
 .t-num {
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums;
   letter-spacing: -0.01em;
 }
 .t-label {
   font-size: 12.5px;
   color: var(--color-mute);
+}
+
+/* Hatched preview fill for "after this action" on the loan meter. */
+.meter-hatch {
+  background: repeating-linear-gradient(-45deg, var(--color-ink) 0 2px, transparent 2px 6px);
+  opacity: 0.55;
 }
 
 /* ───────────────────────── Focus & controls ───────────────────────── */

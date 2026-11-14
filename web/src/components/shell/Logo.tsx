@@ -1,23 +1,20 @@
-/** Mark: a vessel half-full of MUSD liquidity over a bed of BTC collateral. */
+/** Mark: the loan meter in miniature. Bitcoin-orange tile, a bar of collateral value, debt filled in, one limit mark. */
 export function LogoMark({ size = 26 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 28 28" aria-hidden>
-      <path d="M5 4v15a5 5 0 0 0 5 5h8a5 5 0 0 0 5-5V4" fill="none" stroke="#1F1A15" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M7 13.5c2.2-1.4 4.4-1.4 6.6 0s4.4 1.4 6.6 0V19a3 3 0 0 1-3 3H10a3 3 0 0 1-3-3v-5.5Z" fill="#FF9A3C" />
-      <circle cx="11" cy="18.4" r="1.4" fill="#1F1A15" />
-      <circle cx="15" cy="19.2" r="1.1" fill="#1F1A15" />
-      <circle cx="18" cy="18" r="0.9" fill="#B4520A" />
+      <rect width="28" height="28" rx="7" fill="#F7931A" />
+      <rect x="5" y="11.5" width="18" height="5" rx="1.2" fill="#FFF0E0" />
+      <rect x="5" y="11.5" width="10" height="5" rx="1.2" fill="#2A1C10" />
+      <rect x="18.2" y="8" width="1.8" height="12" rx="0.9" fill="#2A1C10" />
     </svg>
   );
 }
 
 export function Wordmark() {
   return (
-    <span className="flex items-center gap-2.5">
+    <span className="flex items-center gap-2">
       <LogoMark />
-      <span className="t-wide text-[17px] font-extrabold tracking-[-0.03em]">
-        Mezo<span className="font-medium text-tang-deep">Lend</span>
-      </span>
+      <span className="text-[18px] font-extrabold tracking-[-0.035em] text-ink">MezoLend</span>
     </span>
   );
 }

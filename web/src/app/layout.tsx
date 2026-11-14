@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, JetBrains_Mono } from "next/font/google";
+import { Schibsted_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/shell/Providers";
 import { Header } from "@/components/shell/Header";
@@ -9,17 +9,9 @@ import { fetchMarketsSnapshot } from "@/lib/server-data";
 // Re-read market state from the chain at most every 30 seconds for server-rendered pages.
 export const revalidate = 30;
 
-const archivo = Archivo({
-  variable: "--font-archivo",
+const schibsted = Schibsted_Grotesk({
+  variable: "--font-schibsted",
   subsets: ["latin"],
-  axes: ["wdth"],
-  display: "swap",
-});
-
-const jbm = JetBrains_Mono({
-  variable: "--font-jbm",
-  subsets: ["latin"],
-  weight: ["400", "500"],
   display: "swap",
 });
 
@@ -49,7 +41,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const seed = await fetchMarketsSnapshot();
   const seedAt = Date.now();
   return (
-    <html lang="en" className={`${archivo.variable} ${jbm.variable} h-full antialiased`}>
+    <html lang="en" className={`${schibsted.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <Providers seed={seed} seedAt={seedAt}>
           <a

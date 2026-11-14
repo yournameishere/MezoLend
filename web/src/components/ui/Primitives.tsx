@@ -58,7 +58,7 @@ export function ExplorerLink({
   );
 }
 
-/** Segmented control (small toggles) — pill track with a white active chip. */
+/** Segmented control: outlined track, solid chip for the active option. */
 export function Segmented<T extends string | number>({
   options,
   value,
@@ -74,14 +74,9 @@ export function Segmented<T extends string | number>({
   size?: "sm" | "md";
   label?: string;
 }) {
-  const active =
-    tone === "supply"
-      ? "bg-paper text-ink shadow-[0_1px_2px_rgba(23,19,15,.12)] ring-1 ring-tang-line"
-      : tone === "borrow"
-        ? "bg-ink text-paper"
-        : "bg-paper text-ink shadow-[0_1px_2px_rgba(23,19,15,.12)]";
+  const active = tone === "supply" ? "bg-tang text-ink" : "bg-ink text-paper";
   return (
-    <div role="tablist" aria-label={label} className="inline-flex rounded-[10px] bg-[#f3efea] p-[3px]">
+    <div role="tablist" aria-label={label} className="inline-flex rounded-[10px] border border-line-2 bg-paper p-[3px]">
       {options.map((o) => (
         <button
           key={String(o.value)}
@@ -90,7 +85,7 @@ export function Segmented<T extends string | number>({
           aria-selected={o.value === value}
           disabled={o.disabled}
           onClick={() => onChange(o.value)}
-          className={`rounded-[7px] font-semibold transition-all disabled:opacity-40 ${size === "sm" ? "px-2.5 py-1 text-[12.5px]" : "px-3.5 py-1.5 text-[13.5px]"} ${o.value === value ? active : "text-mute hover:text-ink"}`}
+          className={`rounded-[7px] font-semibold transition-colors disabled:opacity-40 ${size === "sm" ? "px-2.5 py-1 text-[12.5px]" : "px-3.5 py-1.5 text-[13.5px]"} ${o.value === value ? active : "text-mute hover:text-ink"}`}
         >
           {o.label}
         </button>
