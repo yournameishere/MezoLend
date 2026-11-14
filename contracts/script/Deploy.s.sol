@@ -11,10 +11,12 @@ import {BorrowManager} from "../src/BorrowManager.sol";
 import {LiquidationManager} from "../src/LiquidationManager.sol";
 import {MarketRegistry} from "../src/MarketRegistry.sol";
 import {MezoLendLens} from "../src/MezoLendLens.sol";
+import {MezoLendZap, IMezoPoolsRouter} from "../src/MezoLendZap.sol";
 import {ILendingPool, ICollateralManager, IPriceOracle, IBorrowManager} from "../src/interfaces/IMezoLend.sol";
 
-/// @notice Deploys the full MezoLend protocol (two markets) to Mezo and writes deployments/<network>.json.
-///         Env: PRIVATE_KEY (0x-prefixed), SEED=true to seed liquidity and an example borrow.
+/// @notice Deploys the full MezoLend protocol (two markets + the Mezo Pools zap) to Mezo Testnet and writes
+///         ../deployments/mezo-testnet.json. Env: DEPLOYER_PRIVATE_KEY (0x-prefixed).
+///         Oracle-dependent configuration and demo data run afterwards on-chain (web/scripts/seed-demo.mjs).
 contract Deploy is Script {
     // Mezo testnet
     address constant MUSD = 0x118917a40FAF1CD7a13dB0Ef56C86De7973Ac503;
@@ -22,6 +24,9 @@ contract Deploy is Script {
     address constant PYTH = 0x2880aB155794e7179c9eE2e38200202908C17B43;
     bytes32 constant PYTH_BTC_USD = 0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43;
     address constant BTC = 0x7b7C000000000000000000000000000000000000;
+    address constant MEZO = 0x7B7c000000000000000000000000000000000001;
+    address constant POOLS_ROUTER = 0x9a1ff7FE3a0F69959A3fBa1F1e5ee18e1A9CD7E9;
+    address constant POOLS_FACTORY = 0x4947243CC818b627A5D06d14C4eCe7398A23Ce1A;
 
     struct MarketParams {
         string name;
@@ -49,7 +54,7 @@ contract Deploy is Script {
     }
 
     function run() external {
-        uint256 pk = vm.envUint("PRIVATE_KEY");
+        uint256 pk = vm.envUint("DEPLOYER_PRIVATE_KEY");
         address deployer = vm.addr(pk);
         uint256 startBlock = block.number;
 
@@ -107,6 +112,8 @@ contract Deploy is Script {
         );
 
         MezoLendLens lens = new MezoLendLens(registry);
+        MezoLendZap zap =
+            new MezoLendZap(IMezoPoolsRouter(POOLS_ROUTER), POOLS_FACTORY, IERC20(MUSD), registry, MEZO);
 
         vm.stopBroadcast();
 
@@ -119,12 +126,17 @@ contract Deploy is Script {
         vm.serializeAddress(obj, "oracle", address(oracle));
         vm.serializeAddress(obj, "registry", address(registry));
         vm.serializeAddress(obj, "lens", address(lens));
+        vm.serializeAddress(obj, "zap", address(zap));
+        vm.serializeAddress(obj, "mezo", MEZO);
+        vm.serializeAddress(obj, "poolsRouter", POOLS_ROUTER);
+        vm.serializeAddress(obj, "poolsFactory", POOLS_FACTORY);
         vm.serializeString(obj, "core", _marketJson("core", core));
         string memory json = vm.serializeString(obj, "edge", _marketJson("edge", edge));
-        vm.writeJson(json, "./deployments/mezo-testnet.json");
+        vm.writeJson(json, "../deployments/mezo-testnet.json");
 
         console2.log("Registry", address(registry));
         console2.log("Lens", address(lens));
+        console2.log("Zap", address(zap));
         console2.log("Core pool", core.pool);
         console2.log("Edge pool", edge.pool);
     }

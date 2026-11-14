@@ -28,3 +28,6 @@ Thumbs.db
 .playwright-mcp/
 
 .vercel
+
+# forge broadcast artefacts (summarised in deployments/deploy-log.json)
+contracts/broadcast/
