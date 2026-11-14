@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { usePublicClient } from "wagmi";
-import { erc20Abi, type Abi } from "viem";
+import type { Abi } from "viem";
 import { useSelectedMarket, useUserOverview } from "@/hooks/useProtocol";
 import { useSnapshots } from "@/hooks/useActivity";
-import { useTx, type TxStep } from "@/hooks/useTx";
+import { NO_PERMIT, useTx, type PermitArg, type TxStep } from "@/hooks/useTx";
 import { MarketPicker, PageHeader, Panel, Stat } from "@/components/market/PageHeader";
 import { metrics, rateParams } from "@/components/market/useMarketMetrics";
 import { AmountInput } from "@/components/ui/AmountInput";
-import { Button } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card, CardBody, CardHeader, EmptyState } from "@/components/ui/Card";
 import { Delta, Num, Row, Segmented, Skeleton } from "@/components/ui/Primitives";
 import { Steps } from "@/components/ui/Steps";
@@ -21,7 +20,6 @@ import { LineChart } from "@/components/viz/LineChart";
 import { lendingPoolAbi, MUSD } from "@/config/contracts";
 import { fmtAmount, fmtNum, fmtPct, parseAmount, toInput, toNum } from "@/lib/format";
 import { aprToApy, supplyAprAt } from "@/lib/math";
-import { chain } from "@/lib/wagmi";
 
 type Mode = "supply" | "withdraw";
 
@@ -31,7 +29,6 @@ export function SupplyView() {
   const { user, account } = useUserOverview();
   const um = user?.markets[marketId];
   const snaps = useSnapshots(market?.pool);
-  const publicClient = usePublicClient({ chainId: chain.id });
   const tx = useTx();
 
   const [mode, setMode] = useState<Mode>("supply");
@@ -64,33 +61,19 @@ export function SupplyView() {
   const steps: TxStep[] = useMemo(() => {
     if (!market || !account) return [];
     if (mode === "supply") {
+      // One transaction: the wallet signs an MUSD permit and depositWithPermit pulls the tokens with it.
+      const build = (p: PermitArg) => [amount, account, p] as const;
       return [
         {
-          key: "approve",
-          label: "Approve MUSD",
-          address: MUSD,
-          abi: erc20Abi as Abi,
-          functionName: "approve",
-          args: [market.pool, amount],
-          done: { title: "MUSD approved" },
-          skip: async () => {
-            const allowance = await publicClient!.readContract({
-              address: MUSD,
-              abi: erc20Abi,
-              functionName: "allowance",
-              args: [account, market.pool],
-            });
-            return allowance >= amount;
-          },
-        },
-        {
           key: "supply",
-          label: `Supply ${fmtAmount(amount)} MUSD`,
+          label: `Lend ${fmtAmount(amount)} MUSD`,
           address: market.pool,
           abi: lendingPoolAbi as Abi,
-          functionName: "deposit",
-          args: [amount, account],
-          done: { title: `Supplied ${fmtAmount(amount)} MUSD`, body: `Now earning in the ${market.name} pool.` },
+          functionName: "depositWithPermit",
+          args: build(NO_PERMIT),
+          permit: { token: MUSD, spender: market.pool, value: amount, buildArgs: build },
+          gasFloor: 320_000n,
+          done: { title: `Lent ${fmtAmount(amount)} MUSD`, body: `Now earning in the ${market.name} pool.` },
         },
       ];
     }
@@ -117,7 +100,7 @@ export function SupplyView() {
             done: { title: `Withdrew ${fmtAmount(amount)} MUSD`, body: `From the ${market.name} pool.` },
           },
     ];
-  }, [market, account, mode, amount, um, publicClient, isMax]);
+  }, [market, account, mode, amount, um, isMax]);
 
   const submit = async () => {
     const ok = await tx.run(steps);
@@ -130,16 +113,16 @@ export function SupplyView() {
   const series = useMemo(() => {
     const s = snaps.data ?? [];
     return [
-      { name: "Supply APY", color: "#ff9a3c", area: true, points: s.map((x) => ({ t: x.ts, v: aprToApy(x.supplyApr) })) },
-      { name: "Borrow APY", color: "#17130f", dashed: true, points: s.map((x) => ({ t: x.ts, v: aprToApy(x.borrowApr) })) },
+      { name: "Lenders earn", color: "#f7931a", area: true, points: s.map((x) => ({ t: x.ts, v: aprToApy(x.supplyApr) })) },
+      { name: "Borrowers pay", color: "#2a1c10", dashed: true, points: s.map((x) => ({ t: x.ts, v: aprToApy(x.borrowApr) })) },
     ];
   }, [snaps.data]);
 
   return (
-    <div className="mx-auto max-w-[1240px] px-4 sm:px-6">
+    <div className="mx-auto max-w-[1200px] px-4 pb-20 sm:px-6">
       <PageHeader
-        title="Supply MUSD"
-        intro="Earn the supply rate on idle MUSD. Interest is paid by borrowers, and you can withdraw whenever the pool has idle MUSD."
+        title="Lend MUSD"
+        intro="Put idle MUSD to work. Borrowers who post BTC pay the interest, and you can withdraw whenever the pool has MUSD that isn't lent out."
       >
         <MarketPicker show="supply" />
       </PageHeader>
@@ -190,16 +173,19 @@ export function SupplyView() {
                 title="Nothing supplied yet"
                 action={
                   user && user.musdBalance === 0n ? (
-                    <Link href="/borrow">
-                      <Button variant="outline" size="sm">
+                    <div className="flex flex-wrap justify-center gap-2">
+                      <ButtonLink href="/swap" variant="supply" size="sm">
+                        Swap BTC and lend
+                      </ButtonLink>
+                      <ButtonLink href="/borrow" variant="outline" size="sm">
                         Borrow MUSD against BTC
-                      </Button>
-                    </Link>
+                      </ButtonLink>
+                    </div>
                   ) : undefined
                 }
               >
                 {user && user.musdBalance === 0n
-                  ? "You need MUSD to supply. You can borrow some against testnet BTC."
+                  ? "You need MUSD to lend. Swap test BTC for it and lend in one transaction, or borrow some against BTC."
                   : "Enter an amount in the panel to start earning."}
               </EmptyState>
             ) : (
@@ -243,13 +229,13 @@ export function SupplyView() {
                   tx.reset();
                 }}
                 options={[
-                  { value: "supply", label: "Supply" },
+                  { value: "supply", label: "Lend" },
                   { value: "withdraw", label: "Withdraw" },
                 ]}
               />
               <div className="mt-5">
                 <AmountInput
-                  label={mode === "supply" ? "Amount to supply" : "Amount to withdraw"}
+                  label={mode === "supply" ? "Amount to lend" : "Amount to withdraw"}
                   value={value}
                   onChange={(v) => {
                     setValue(v);
@@ -265,7 +251,7 @@ export function SupplyView() {
                 />
               </div>
 
-              <div className="mt-1 rounded-[10px] bg-wash px-3.5 py-1.5">
+              <div className="mt-1 rounded-[10px] bg-tang-soft px-3.5 py-1.5">
                 <Row label="Supply APY">
                   <Delta from={fmtPct(k?.supplyApy)} to={amount > 0n && preview ? fmtPct(preview.apy) : undefined} />
                 </Row>
@@ -281,7 +267,7 @@ export function SupplyView() {
                   <ConnectPrompt tone="supply" />
                 ) : (
                   <Button variant="supply" size="lg" className="w-full" disabled={amount === 0n || !!error || !market} loading={tx.busy} onClick={submit}>
-                    {amount === 0n ? "Enter an amount" : mode === "supply" ? `Supply ${fmtAmount(amount)} MUSD` : `Withdraw ${fmtAmount(amount)} MUSD`}
+                    {amount === 0n ? "Enter an amount" : mode === "supply" ? `Lend ${fmtAmount(amount)} MUSD` : `Withdraw ${fmtAmount(amount)} MUSD`}
                   </Button>
                 )}
                 {error && <p className="mt-2 text-[13px] text-danger">{error}</p>}
@@ -289,7 +275,16 @@ export function SupplyView() {
               </div>
               <Steps steps={tx.steps} states={tx.states} hashes={tx.hashes} tone="supply" />
               {mode === "supply" && (
-                <p className="mt-4 text-[12.5px] leading-relaxed text-faint">
+                <p className="mt-3 text-[13px] text-mute">
+                  One signature and one transaction. MezoLend uses MUSD&apos;s permit, so there is no separate approval. Holding BTC instead?{" "}
+                  <Link href="/swap" className="font-semibold text-tang-deep underline decoration-tang-line underline-offset-2">
+                    Swap and lend
+                  </Link>
+                  .
+                </p>
+              )}
+              {mode === "supply" && (
+                <p className="mt-4 text-[12.5px] leading-relaxed text-mute">
                   Supplied MUSD is lent to borrowers who post BTC worth more than their loan. Returns depend on demand and aren&apos;t
                   guaranteed. If a liquidation ever leaves bad debt, reserves cover it first, then lenders.
                 </p>
