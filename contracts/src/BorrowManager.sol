@@ -55,12 +55,10 @@ contract BorrowManager is AccessControl, Pausable, ReentrancyGuard, IBorrowManag
     }
 
     /// @notice Withdraw collateral while keeping debt within the LTV limit. Pass type(uint256).max for the maximum.
-    function withdrawCollateral(address asset, uint256 amount) external nonReentrant whenNotPaused {
+    ///         Accounts with no debt can always withdraw, even while the market is paused (audit M-02).
+    function withdrawCollateral(address asset, uint256 amount) external nonReentrant {
         pool.accrueInterest();
-        if (amount == type(uint256).max) amount = _maxWithdrawable(msg.sender, asset, pool.borrowBalanceStored(msg.sender));
-        if (amount == 0) revert ZeroAmount();
-        _requireSolventAfterWithdraw(msg.sender, asset, amount);
-        collateralManager.withdrawTo(msg.sender, asset, amount, msg.sender);
+        if (_withdraw(msg.sender, asset, amount) == 0) revert ZeroAmount();
         _sync(msg.sender);
     }
 
@@ -90,16 +88,7 @@ contract BorrowManager is AccessControl, Pausable, ReentrancyGuard, IBorrowManag
     function repayAndWithdraw(uint256 repayAmount, address asset, uint256 withdrawAmount) external nonReentrant {
         pool.accrueInterest();
         if (repayAmount > 0) pool.repayFrom(msg.sender, msg.sender, repayAmount);
-        if (withdrawAmount > 0) {
-            _requireNotPaused();
-            if (withdrawAmount == type(uint256).max) {
-                withdrawAmount = _maxWithdrawable(msg.sender, asset, pool.borrowBalanceStored(msg.sender));
-            }
-            if (withdrawAmount > 0) {
-                _requireSolventAfterWithdraw(msg.sender, asset, withdrawAmount);
-                collateralManager.withdrawTo(msg.sender, asset, withdrawAmount, msg.sender);
-            }
-        }
+        if (withdrawAmount > 0) _withdraw(msg.sender, asset, withdrawAmount);
         _sync(msg.sender);
     }
 
@@ -116,6 +105,18 @@ contract BorrowManager is AccessControl, Pausable, ReentrancyGuard, IBorrowManag
         if (d.debt + amount + fee > d.borrowCapacity) revert InsufficientCollateral();
         _accounts.add(account);
         pool.borrow(account, amount, account);
+    }
+
+    /// @dev Withdraws up to `amount` (max = everything the LTV allows). Pausing only blocks withdrawals that
+    ///      back open debt; returns the amount withdrawn.
+    function _withdraw(address account, address asset, uint256 amount) internal returns (uint256) {
+        uint256 debt = pool.borrowBalanceStored(account);
+        if (debt > 0) _requireNotPaused();
+        if (amount == type(uint256).max) amount = _maxWithdrawable(account, asset, debt);
+        if (amount == 0) return 0;
+        _requireSolventAfterWithdraw(account, asset, amount);
+        collateralManager.withdrawTo(account, asset, amount, account);
+        return amount;
     }
 
     function _requireSolventAfterWithdraw(address account, address asset, uint256 amount) internal view {
